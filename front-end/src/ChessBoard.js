@@ -1,23 +1,13 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import WithMoveValidation from "./integrations/WithMoveValidation";
-import { useParams } from "react-router-dom";
-import axios from 'axios';
+import { useLocation} from 'react-router-dom';
+import socket from './SocketConfig';
 
 function ChessBoard() {
-
-	const [game, setGame] = useState(undefined);
-
-	const firstUpdate = useRef(true);
-
-	useLayoutEffect(() => {
-		if(firstUpdate.current) {
-			firstUpdate.current = false;
-			console.log("mounted");
-			fetchGame();
-			return;
-		}
-	});
-
+	const  location  = useLocation()
+	const state = location.state
+	const [game, setGame] = useState(state.game)
+	const [orientation, setOrientation] = useState()
 	const boardsContainer = {
 		display: "flex",
 		justifyContent: "space-around",
@@ -26,29 +16,30 @@ function ChessBoard() {
 		width: "100vw",
 		marginTop: 30,
 		marginBottom: 50
-	};
-
-	const fetchGame = () => {
-		axios.get('http://localhost:4000/game/' + id, {
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		}).then(res => {
-			setGame(res.data[0]);
-		});
 	}
 
-	
-	let { id } = useParams();
+	useEffect(() => {
+		socket.emit("fetch", {id: state.game.id})
+		socket.on("fetch", ({game})=>{
+			setGame(game)
+			if(state.username === game.players[0]){
+				setOrientation("white")
+			}
+			else {				
+				setOrientation("black")
+			}
+			console.log(game.id)
+		});
+	}, [state.game.id, state.username]);
 
 	return (
 		<>
+			Gamne ID: <input readOnly value={game.id}/>
 			<div style={boardsContainer}>
-				<WithMoveValidation />
+				<WithMoveValidation id={game.id} orientation={orientation} />
 			</div>
-			<p>Player 1 (White): {(game === undefined) ? "" : game.players[0]}</p> <br />
-			<p>Player 2 (Black): waiting...</p>
-			<button onClick={fetchGame}>Fetch</button>
+			<p>Player 1 (White): {(game.players[0]) ? game.players[0] : "waiting..."}</p> <br />
+			<p>Player 2 (Black): {(game.players[1]) ? game.players[1] : "waiting..."}</p>
 		</>
 	);
 }

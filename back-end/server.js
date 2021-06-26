@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const mongoose = require('mongoose');
+const server = require("http").createServer(app);
+const io = require("socket.io")(server);
 const PORT = 4000;
 
 app.use(cors());
@@ -13,24 +14,53 @@ app.use(express.json());
 
 let games = []
 
-app.post('/creategame', (req, res) => {
-	var id = '';
-	var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	var charactersLength = characters.length;
-	for (var i = 0; i < 11; i++) {
-		id += characters.charAt(Math.floor(Math.random() *
-			charactersLength));
-	}
-	console.log("User " + req.body.username + " requested a new match");
-	games.push({id: id, players: [req.body.username]})
-	console.log("Game " + id + " created!")
-	res.status(200).json({'id': id});
+io.on("connection", (socket) => {
+
+	socket.on("create", ({ username }) => {
+		let id = Math.random().toString(36).slice(2); 
+		games.push({
+			id: id,
+			players: [username],
+			fen: 'start'
+		})
+		socket.join(id)
+		console.log(`${username} created a new game: ${games[games.length-1].id}!`)
+		socket.emit("created", {game: games[games.length-1]})
+	});
+
+	socket.on("fetch", ({id}) => {
+		console.log(games)
+		games.forEach(game => {
+			if(game.id === id) {
+				socket.to(id).emit("fetch", {game: game})
+				socket.emit("fetch", {game: game})
+			}
+		});
+		
+	});
+
+	socket.on("join", ({username, id}) => {
+		console.log(`${username} wants to join ${id}!`)
+		games.forEach(game => {
+			if(game.id === id) {
+				game.players.push(username);
+				socket.join(id)
+				socket.emit("joined", {game: game});
+			}
+		});
+	});
+
+	socket.on("move", ({id, from, to}) => {
+		console.log(`Player moved in game ${id}`)
+		games.forEach(game => {
+			if(game.id === id) {
+				socket.to(id).emit("moved", {from: from, to: to})
+			}
+		})
+	})
+
 });
 
-app.get('/game/:id', (req, res) => {
-	res.status(200).json(games.filter(game => game.id === req.params.id))
-});
-
-app.listen(PORT, function () {
+server.listen(PORT, function () {
 	console.log("Server is running on Port: " + PORT);
 });
