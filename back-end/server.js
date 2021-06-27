@@ -15,6 +15,10 @@ app.use(express.json());
 
 let games = []
 
+app.get('/', function (req, res) {
+	res.send('App is running correctly')
+  })
+
 io.on("connection", (socket) => {
 
 	socket.on("create", ({ username }) => {
