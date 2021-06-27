@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const server = require("http").createServer(app);
-const io = require("socket.io")(server, {path: '/socket.io-client'});
-io.set('transports', ['websocket']);
+const io = require("socket.io")(server);
 const PORT = 4000;
 
 app.use(cors());
