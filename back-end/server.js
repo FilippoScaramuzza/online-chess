@@ -15,17 +15,19 @@ app.use(express.json());
 let games = []
 
 app.get('/', function (req, res) {
-	res.send('App is running correctly')
+	res.send('Server is running correctly')
   })
 
 io.on("connection", (socket) => {
 
+	console.log("Client connected")
+
 	socket.on("create", ({ username }) => {
-		let id = Math.random().toString(36).slice(2); 
+		let id = Math.random().toString(36).slice(9); 
 		games.push({
 			id: id,
 			players: [username],
-			fen: 'start'
+			pgn: ""
 		})
 		socket.join(id)
 		console.log(`${username} created a new game: ${games[games.length-1].id}!`)
@@ -36,6 +38,8 @@ io.on("connection", (socket) => {
 		console.log(games)
 		games.forEach(game => {
 			if(game.id === id) {
+				if(![...socket.rooms].indexOf(id) >= 0)
+					socket.join(id)
 				socket.to(id).emit("fetch", {game: game})
 				socket.emit("fetch", {game: game})
 			}
@@ -54,12 +58,22 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	socket.on("move", ({id, from, to}) => {
+	socket.on("move", ({id, from, to, pgn}) => {
 		console.log(`Player moved in game ${id}`)
 		games.forEach(game => {
 			if(game.id === id) {
+				game.pgn = pgn
 				socket.to(id).emit("moved", {from: from, to: to})
 			}
+		})
+	})
+
+	socket.on("disconnecting", () => {
+		
+		console.log(socket.rooms)
+		socket.rooms.forEach(room => {
+			socket.to(room).emit("disconnected")
+			console.log("Client disconnected")
 		})
 	})
 
