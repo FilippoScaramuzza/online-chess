@@ -18,24 +18,31 @@ app.get('/', function (req, res) {
 	res.send('Server is running correctly')
 })
 
-io.on("connection", (socket) => {
+const logServerStatus = () => {
+	console.clear()
+	console.log(`Current online users: \t${io.engine.clientsCount}`)
+	console.log(`Currently on-going games:`)
+	console.log(games)
+}
 
-	console.log("Client connected")
+io.on("connection", (socket) => {
+	logServerStatus();
 
 	socket.on("create", ({ username }) => {
 		let id = Math.random().toString(36).slice(9);
 		games.push({
 			id: id,
 			players: [username],
-			pgn: ""
+			pgn: "",
+			status: 'starting'
 		})
 		socket.join(id)
-		console.log(`${username} created a new game: ${games[games.length - 1].id}!`)
 		socket.emit("created", { game: games[games.length - 1] })
+
+		logServerStatus();
 	});
 
 	socket.on("fetch", ({ id }) => {
-		console.log(games)
 		games.forEach(game => {
 			if (game.id === id) {
 				if (![...socket.rooms].indexOf(id) >= 0)
@@ -45,6 +52,7 @@ io.on("connection", (socket) => {
 			}
 		});
 
+		logServerStatus();
 	});
 
 	socket.on("join", ({ username, id }) => {
@@ -52,20 +60,35 @@ io.on("connection", (socket) => {
 		games.forEach(game => {
 			if (game.id === id) {
 				game.players.push(username);
+				game.status = 'ongoing'
 				socket.join(id)
 				socket.emit("joined", { game: game });
 			}
 		});
+
+		logServerStatus();
 	});
 
 	socket.on("move", ({ id, from, to, pgn }) => {
-		console.log(`Player moved in game ${id}`)
 		games.forEach(game => {
 			if (game.id === id) {
 				game.pgn = pgn
 				socket.to(id).emit("moved", { from: from, to: to })
 			}
 		})
+
+		logServerStatus();
+	})
+
+	socket.on("resign", ({id}) => {
+		console.log("User resigned")
+		socket.to(id).emit("resigned")
+		games.forEach(game => {
+			if (game.id === id) {
+				game.status = 'resigned'
+			}
+		})
+		logServerStatus();
 	})
 
 	socket.on("disconnecting", () => {
@@ -79,9 +102,12 @@ io.on("connection", (socket) => {
 				}
 			}
 		})
+
+		logServerStatus();
 	})
 });
 
 server.listen(process.env.PORT || PORT, function () {
 	console.log("Server is running on Port: " + PORT);
+	logServerStatus()
 });

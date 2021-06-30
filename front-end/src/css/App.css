@@ -41,3 +41,9 @@
     transform: rotate(360deg);
   }
 }
+
+.resign:hover{
+  transition: 500ms;
+  color: white!important;
+  background-color: orangered!important;
+}
