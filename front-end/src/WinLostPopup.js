@@ -3,7 +3,6 @@ import { Button } from 'semantic-ui-react';
 import Popup from 'reactjs-popup';
 import { Link } from 'react-router-dom';
 import "./css/NewGamePopup.css";
-import socket from './SocketConfig';
 
 function NewGamePopup(props) {
 	const [open, setOpen] = useState(undefined)
