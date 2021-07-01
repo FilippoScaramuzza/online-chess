@@ -39,7 +39,7 @@ function NewGamePopup() {
 					<input value={username} onChange={e => { setUsername(e.target.value) }}></input>
 					<br /><br />
 					
-					<button className="ui button" onClick={e => handleSubmit(e)}>
+					<button className="ui button" onClick={e => handleSubmit(e)} disabled={username==="" ? true : false}>
 						Create
 					</button>
 					{(redirect) ? <Redirect to={{pathname: "/game", state: {username: username, game: game}}} /> : ''}

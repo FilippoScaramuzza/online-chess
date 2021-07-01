@@ -10,9 +10,12 @@ function NewGamePopup() {
 	const [gameid, setGameid] = useState('')
 	const [game, setGame] = useState()
 	const [redirect, setRedirect] = useState(false)
+	const [gameNotFound, setGameNotFound] = useState(false)
+	const [usernameAlreadyInUse, setUsernameAlreadyInUse] = useState(false)
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
+
 		socket.on("connect", () => {
 			console.log("Connected socket");
 		});
@@ -25,6 +28,16 @@ function NewGamePopup() {
 			setGame(game)
 			setRedirect(true)
 		})
+
+		socket.on("gamenotfound", () => {
+			setGameNotFound(true)
+			setUsernameAlreadyInUse(false)
+		})
+
+		socket.on("usernamealreadyinuse", () => {
+			setUsernameAlreadyInUse(true)
+			setGameNotFound(false)
+		})
 	}
 
 	return (
@@ -34,19 +47,20 @@ function NewGamePopup() {
 			</button>
 		} modal>
 			<div className="modal">
-				<div style={{ textAlign: "center" }}></div>
 				<form className="ui form">
 				<h3 className="ui horizontal divider header">
 					Choose a Username
 				</h3>
+				<div style={{ textAlign: "center", color:'red' }}>{usernameAlreadyInUse ? "Username already choosen!" : ""}</div>
 					<input value={username} onChange={e => { setUsername(e.target.value) }}></input>
 				<h3 className="ui horizontal divider header">
 					Game ID
 				</h3>
+				<div style={{ textAlign: "center", color:'red' }}>{gameNotFound ? "Game not found, enter a valid ID" : ""}</div>
 					<input value={gameid} onChange={e => { setGameid(e.target.value) }}></input>
 					<br /><br />
 					
-					<button className="ui button" onClick={e => handleSubmit(e)}>
+					<button className="ui button" onClick={e => handleSubmit(e)} disabled={username === "" || gameid === "" ? true : false}>
 						Join
 					</button>
 					{(redirect) ? <Redirect to={{pathname: "/game", state: {username: username, game: game}}} /> : ''}

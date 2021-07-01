@@ -57,14 +57,30 @@ io.on("connection", (socket) => {
 
 	socket.on("join", ({ username, id }) => {
 		console.log(`${username} wants to join ${id}!`)
+		let gamefound = false;
+		let usernameAlreadyInUse = false;
 		games.forEach(game => {
 			if (game.id === id) {
-				game.players.push(username);
-				game.status = 'ongoing'
-				socket.join(id)
-				socket.emit("joined", { game: game });
+				if (game.players[0] === username) {
+					usernameAlreadyInUse = true;
+				}
+				else {
+					game.players.push(username);
+					game.status = 'ongoing';
+					socket.join(id);
+					socket.emit("joined", { game: game });
+					gamefound = true;
+				}
 			}
 		});
+
+		if (!gamefound) {
+			socket.emit("gamenotfound");
+		}
+
+		if (usernameAlreadyInUse) {
+			socket.emit("usernamealreadyinuse");
+		}
 
 		logServerStatus();
 	});
@@ -80,8 +96,7 @@ io.on("connection", (socket) => {
 		logServerStatus();
 	})
 
-	socket.on("resign", ({id}) => {
-		console.log("User resigned")
+	socket.on("resign", ({ id }) => {
 		socket.to(id).emit("resigned")
 		games.forEach(game => {
 			if (game.id === id) {
@@ -89,6 +104,15 @@ io.on("connection", (socket) => {
 			}
 		})
 		logServerStatus();
+	})
+
+	socket.on("checkmate", ({ id }) => {
+		socket.to(id).emit("checkmate")
+		games.forEach(game => {
+			if (game.id === id) {
+				game.status = "checkmate"
+			}
+		})
 	})
 
 	socket.on("disconnecting", () => {
