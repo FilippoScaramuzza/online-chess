@@ -94,28 +94,28 @@ class HumanVsHuman extends Component {
 
   // show possible moves
   highlightSquare = (sourceSquare, squaresToHighlight) => {
-    // const highlightStyles = [sourceSquare, ...squaresToHighlight].reduce(
-    //   (a, c) => {
-    //     return {
-    //       ...a,
-    //       ...{
-    //         [c]: {
-    //           background:
-    //             'radial-gradient(circle, #fffc00 36%, transparent 40%)',
-    //           borderRadius: '50%'
-    //         }
-    //       },
-    //       ...squareStyling({
-    //         history: this.state.history,
-    //         pieceSquare: this.state.pieceSquare
-    //       })
-    //     };
-    //   },
-    //   {}
-    // );
+    const highlightStyles = [sourceSquare, ...squaresToHighlight].reduce(
+      (a, c) => {
+        return {
+          ...a,
+          ...{
+            [c]: {
+              background:
+                'radial-gradient(circle, #aaa 36%, transparent 40%)',
+              borderRadius: '50%'
+            }
+          },
+          ...squareStyling({
+            history: this.state.history,
+            pieceSquare: this.state.pieceSquare
+          })
+        };
+      },
+      {}
+    );
 
     this.setState(({ squareStyles }) => ({
-      squareStyles: { ...squareStyles }
+      squareStyles: { ...squareStyles, ...highlightStyles }
     }));
   };
 
@@ -126,7 +126,7 @@ class HumanVsHuman extends Component {
     let move = this.state.game.move({
       from: sourceSquare,
       to: targetSquare,
-      promotion: 'q' // always promote to a queen for example simplicity
+      promotion: "q" // always promote to a queen for example simplicity
     });
 
     // illegal move
@@ -134,7 +134,7 @@ class HumanVsHuman extends Component {
     this.setState(({ history, pieceSquare }) => ({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
-      squareStyles: squareStyling({ pieceSquare: targetSquare, history: this.state.game.history({verbose: true}) })
+      squareStyles: squareStyling({ pieceSquare, history: this.state.game.history({ verbose: true })})
     }));
 
     socket.emit("move", { id: this.state.id, from: sourceSquare, to: targetSquare, pgn: this.state.game.pgn() })
@@ -142,6 +142,24 @@ class HumanVsHuman extends Component {
   };
 
   onMouseOverSquare = square => {
+    // // get list of possible moves for this square
+    // let moves = this.state.game.moves({
+    //   square: square,
+    //   verbose: true
+    // });
+
+    // // exit if there are no moves available for this square
+    // if (moves.length === 0) return;
+
+    // let squaresToHighlight = [];
+    // for (var i = 0; i < moves.length; i++) {
+    //   squaresToHighlight.push(moves[i].to);
+    // }
+
+    // this.highlightSquare(square, squaresToHighlight);
+  };
+
+  highlightSquares = square => {
     // get list of possible moves for this square
     let moves = this.state.game.moves({
       square: square,
@@ -159,7 +177,7 @@ class HumanVsHuman extends Component {
     this.highlightSquare(square, squaresToHighlight);
   };
 
-  onMouseOutSquare = square => this.removeHighlightSquare(square);
+  onMouseOutSquare = square => {return;}//this.removeHighlightSquare(square);
 
   // central squares get diff dropSquareStyles
   onDragOverSquare = square => {
@@ -173,24 +191,27 @@ class HumanVsHuman extends Component {
     if (this.state.game.turn() === 'b' && this.state.orientation !== "black") return
 
     this.setState(({ history }) => ({
-      squareStyles: squareStyling({ pieceSquare: square, history }),
+      squareStyles: squareStyling({ pieceSquare: square, history: this.state.game.history({verbose: true}) }),
       pieceSquare: square
     }));
+
+    this.highlightSquares(square)
 
     let move = this.state.game.move({
       from: this.state.pieceSquare,
       to: square,
-      promotion: 'q' // always promote to a queen for example simplicity
+      promotion: "q" // always promote to a queen for example simplicity
     });
 
     // illegal move
     if (move === null) return;
 
     socket.emit("move", { id: this.state.id, from: this.state.pieceSquare, to: square, pgn: this.state.game.pgn() })
+
     this.setState({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
-      pieceSquare: ''
+      pieceSquare: ""
     });
   };
 
