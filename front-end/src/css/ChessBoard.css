@@ -1,0 +1,39 @@
+.chessboard{
+    width: 50%!important;
+    float:left;
+    justify-content: flex-end!important;
+    align-items: center;
+	/*height: 70vh!important;*/
+    margin: 0 0 0 0;
+}
+.game_details{
+    display:inline-block;
+    width: 40%!important;
+    padding-top: 50px;
+    text-align: left;
+}
+
+.newline{
+    display: none;
+}
+
+span{
+    margin-right: 20px;
+}
+
+@media only screen and (max-width: 500px) {
+    .chessboard {
+        width: 100%!important;
+        height: auto;
+        justify-content: space-around!important;
+    }
+    .newline{
+        display: block;
+    }
+    .game_details{
+        display: block;
+        width: 100%!important;
+        padding-top: 0px;
+        text-align: center;
+    }
+  }

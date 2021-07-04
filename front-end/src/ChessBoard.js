@@ -5,6 +5,8 @@ import { useLocation } from 'react-router-dom';
 import socket from './SocketConfig';
 import WinLostPopup from './WinLostPopup';
 
+import './css/ChessBoard.css'
+
 function ChessBoard() {
 	const location = useLocation()
 	const state = location.state
@@ -50,34 +52,31 @@ function ChessBoard() {
 	}
 
 	return (
-		<>
-			{disconnected ? <><p style={{ color: "red" }}>Opponent disconnected...</p><br /></> : ""}
-			<WinLostPopup win={opponentResigned ? true : false} lost={resigned ? true : false} resigned={(opponentResigned || resigned) ? true : false} />
-			<div style={{
-				alignItems: "center",
-				flexWrap: "wrap",
-				width: "100vw",
-				marginBottom: "20px"
-			}}>
-				<div>
-					<span style={{ marginRight: "100px" }}><span style={{ color: "grey" }}>Player 1 (White):</span> {(game.players[0]) ? game.players[0] : "waiting..."}</span>
-					<span><span style={{ color: "grey" }}>Player 2 (Black):</span> {(game.players[1]) ? game.players[1] : "waiting..."}</span>
-				</div>
-			</div>
+		<div>
+			<div className="game_details">
 
-			Gamne ID: <input readOnly value={game.id} />
-			<Button animated='vertical' className='resign' style={{ marginLeft: "20px" }} onClick={handleResignClick}>
-				<Button.Content hidden>Resign</Button.Content>
-				<Button.Content visible>
-					<Icon name='flag' />
-				</Button.Content>
-			</Button>
-			
-			<div style={boardsContainer}>
+				{disconnected ? <><p style={{ color: "red" }}>Opponent disconnected...</p><br /></> : ""}
+				<WinLostPopup win={opponentResigned ? true : false} lost={resigned ? true : false} resigned={(opponentResigned || resigned) ? true : false} />
+				<div>
+					<div>
+						<span><span style={{ color: "grey" }}>Player 1 (White):</span> {(game.players[0]) ? game.players[0] : "waiting..."}</span><br className="newline"/>
+						<span><span style={{ color: "grey" }}>Player 2 (Black):</span> {(game.players[1]) ? game.players[1] : "waiting..."}</span>
+					</div>
+				</div>
+				<br/>
+				<br/>
+				Gamne ID: <input readOnly value={game.id} />
+				<Button animated='vertical' className='resign' style={{ marginLeft: "20px" }} onClick={handleResignClick}>
+					<Button.Content hidden>Resign</Button.Content>
+					<Button.Content visible>
+						<Icon name='flag' />
+					</Button.Content>
+				</Button>
+			</div>
+			<div style={boardsContainer} className="chessboard">
 				<WithMoveValidation id={game.id} pgn={game.pgn} orientation={orientation} />
 			</div>
-
-		</>
+		</div>
 	);
 }
 

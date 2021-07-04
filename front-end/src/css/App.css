@@ -4,7 +4,8 @@
 
 .main {
   text-align: center;
-  margin-top: 20px;
+  padding-top: 10px;
+  height: 100%;
 }
 
 .App-logo {

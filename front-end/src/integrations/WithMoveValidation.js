@@ -1,4 +1,4 @@
-import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component, version } from 'react'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import Chess from 'chess.js';
 import socket from '../SocketConfig';
@@ -43,8 +43,10 @@ class HumanVsHuman extends Component {
       this.setState(({ history, pieceSquare }) => ({
         fen: this.state.game.fen(),
         history: this.state.game.history({ verbose: true }),
-        squareStyles: squareStyling({ pieceSquare, history }),
+        squareStyles: squareStyling({ pieceSquare: to, history: this.state.game.history({verbose: true}) }),
       }));
+      
+      //this.highlightSquare(from, to)
 
       if (this.state.game.in_checkmate()) {
         this.setState({ lost: true })
@@ -132,7 +134,7 @@ class HumanVsHuman extends Component {
     this.setState(({ history, pieceSquare }) => ({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
-      squareStyles: squareStyling({ pieceSquare, history })
+      squareStyles: squareStyling({ pieceSquare: targetSquare, history: this.state.game.history({verbose: true}) })
     }));
 
     socket.emit("move", { id: this.state.id, from: sourceSquare, to: targetSquare, pgn: this.state.game.pgn() })
@@ -233,7 +235,7 @@ export default function WithMoveValidation(props) {
           <WinLostPopup win={win} lost={lost} reisgned={false} />
             <Chessboard
               id="humanVsHuman"
-              calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 480)}
+              calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 600)}
               position={position}
               onDrop={onDrop}
               onMouseOverSquare={onMouseOverSquare}
