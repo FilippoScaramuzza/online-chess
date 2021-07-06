@@ -20,9 +20,7 @@ function ChessBoard() {
 		justifyContent: "space-around",
 		alignItems: "center",
 		flexWrap: "wrap",
-		width: "100vw",
-		marginTop: 30,
-		marginBottom: 50
+		width: "100vw"
 	}
 
 	useEffect(() => {

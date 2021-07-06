@@ -256,7 +256,7 @@ export default function WithMoveValidation(props) {
           <WinLostPopup win={win} lost={lost} reisgned={false} />
             <Chessboard
               id="humanVsHuman"
-              calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 600)}
+              calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight/100)*70)}
               position={position}
               onDrop={onDrop}
               onMouseOverSquare={onMouseOverSquare}
