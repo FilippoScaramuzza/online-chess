@@ -9,6 +9,7 @@ function NewGamePopup() {
 	const [username, setUsername] = useState('')
 	const [game, setGame] = useState()
 	const [redirect, setRedirect] = useState(false)
+	const [loading, setLoading] = useState(false)
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
@@ -17,10 +18,11 @@ function NewGamePopup() {
 		});
 
 		socket.emit("create", { username: username })
-
+		setLoading(true)
 		socket.on("created", ({ game }) => {
 			setGame(game)
 			setRedirect(true)
+			setLoading(false)
 		})
 	}
 
@@ -39,7 +41,7 @@ function NewGamePopup() {
 					<input value={username} onChange={e => { setUsername(e.target.value) }}></input>
 					<br /><br />
 					
-					<button className="ui button" onClick={e => handleSubmit(e)} disabled={username==="" ? true : false}>
+					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmit(e)} disabled={username==="" ? true : false}>
 						Create
 					</button>
 					{(redirect) ? <Redirect to={{pathname: "/game", state: {username: username, game: game}}} /> : ''}

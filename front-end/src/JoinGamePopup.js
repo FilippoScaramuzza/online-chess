@@ -12,6 +12,7 @@ function NewGamePopup() {
 	const [redirect, setRedirect] = useState(false)
 	const [gameNotFound, setGameNotFound] = useState(false)
 	const [usernameAlreadyInUse, setUsernameAlreadyInUse] = useState(false)
+	const [loading, setLoading] = useState(false)
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
@@ -20,13 +21,14 @@ function NewGamePopup() {
 			console.log("Connected socket");
 		});
 
+		setLoading(true)
+
 		socket.emit("join", { username: username, id: gameid })
 
 		socket.on("joined", ({ game }) => {
-			console.log("JOINED")
-			console.log(game)
 			setGame(game)
 			setRedirect(true)
+			setLoading(false)
 		})
 
 		socket.on("gamenotfound", () => {
@@ -60,7 +62,7 @@ function NewGamePopup() {
 					<input value={gameid} onChange={e => { setGameid(e.target.value) }}></input>
 					<br /><br />
 					
-					<button className="ui button" onClick={e => handleSubmit(e)} disabled={username === "" || gameid === "" ? true : false}>
+					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmit(e)} disabled={username === "" || gameid === "" ? true : false}>
 						Join
 					</button>
 					{(redirect) ? <Redirect to={{pathname: "/game", state: {username: username, game: game}}} /> : ''}
