@@ -16,6 +16,7 @@ function ChessBoard() {
 	const [resigned, setResigned] = useState(false)
 	const [opponentResigned, setOpponentResigned] = useState(false)
 	const [pieces, setPieces] = useState("neo")
+	const [board, setBoard] = useState("brown.svg")
 	const boardsContainer = {
 		display: "flex",
 		justifyContent: "space-around",
@@ -64,13 +65,8 @@ function ChessBoard() {
 				</div>
 				<br />
 				<br />
-				<span>Gamne ID:</span> <Input readOnly value={game.id} />
-				<Button animated='vertical' className='resign' style={{ marginLeft: "20px" }} onClick={handleResignClick}>
-					<Button.Content hidden>Resign</Button.Content>
-					<Button.Content visible>
-						<Icon name='flag' />
-					</Button.Content>
-				</Button>
+				<span>Gamne ID:</span> 
+				<Input readOnly style={{width: "60px"}} value={game.id} />
 				<Dropdown icon="setting" style={{color: "white", marginLeft: "20px"}} pointing className='link item'>
 					<Dropdown.Menu>
 						<Dropdown.Item>
@@ -87,15 +83,27 @@ function ChessBoard() {
 							<Dropdown.Divider/><br/>
 							<Dropdown text='Board'>
 								<Dropdown.Menu>
-									
+									<Dropdown.Item onClick={() => {setBoard("brown.svg")}}>Brown</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("blue.svg")}}>Blue</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("green.svg")}}>Green</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("wood4.jpg")}}>Wood</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("newspaper.png")}}>Newspaper</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("leather.jpg")}}>Leather</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setBoard("metal.jpg")}}>Metal</Dropdown.Item>
 								</Dropdown.Menu>
 							</Dropdown>
 						</Dropdown.Item>
 					</Dropdown.Menu>
 				</Dropdown>
+				<Button animated='vertical' className='resign' style={{ marginLeft: "20px" }} onClick={handleResignClick}>
+					<Button.Content hidden>Resign</Button.Content>
+					<Button.Content visible>
+						<Icon name='flag' />
+					</Button.Content>
+				</Button>
 			</div>
 			<div style={boardsContainer} className="chessboard">
-				<WithMoveValidation id={game.id} pgn={game.pgn} orientation={orientation} pieces={pieces} />
+				<WithMoveValidation id={game.id} pgn={game.pgn} orientation={orientation} pieces={pieces} board={board}/>
 			</div>
 		</div>
 	);

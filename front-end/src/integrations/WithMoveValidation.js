@@ -105,9 +105,9 @@ class HumanVsHuman extends Component {
           ...a,
           ...{
             [c]: {
-              background:
-                'radial-gradient(circle, #aaa 36%, transparent 40%)',
-              borderRadius: '50%'
+              backgroundImage:
+                'url(/chess-themes/target.png)',
+              backgroundSize: "cover"
             }
           },
           ...squareStyling({
@@ -118,6 +118,8 @@ class HumanVsHuman extends Component {
       },
       {}
     );
+    
+    delete highlightStyles[sourceSquare]
 
     this.setState(({ squareStyles }) => ({
       squareStyles: { ...squareStyles, ...highlightStyles }
@@ -225,10 +227,10 @@ class HumanVsHuman extends Component {
     const returnPieces = {};
     pieces.map((p) => {
       returnPieces[p] = ({ squareWidth }) => (
-        <img style={{ width: squareWidth, height: squareWidth }} 
-        src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-        key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-        alt={p.toLowerCase()} />
+        <img style={{ width: squareWidth, height: squareWidth }}
+          src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          alt={p.toLowerCase()} />
       );
       return null;
     });
@@ -237,7 +239,6 @@ class HumanVsHuman extends Component {
 
   render() {
     const { fen, dropSquareStyle, squareStyles, orientation } = this.state;
-    console.log(this.props.pieces)
     return this.props.children({
       squareStyles,
       position: fen,
@@ -288,7 +289,9 @@ export default function WithMoveValidation(props) {
             pieces={pieces}
             boardStyle={{
               borderRadius: '5px',
-              boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`
+              boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`,
+              backgroundImage: "url(/chess-themes/board/" + props.board +")",
+              backgroundSize: "cover"
             }}
             squareStyles={squareStyles}
             sparePieces={false}
@@ -297,6 +300,8 @@ export default function WithMoveValidation(props) {
             onSquareClick={onSquareClick}
             onSquareRightClick={onSquareRightClick}
             orientation={orientation}
+            lightSquareStyle={{ backgroundColor: "transparent" }}
+            darkSquareStyle={{ backgroundColor: "transparent" }}
           />
         </>
       )}
