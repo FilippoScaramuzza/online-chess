@@ -2,6 +2,10 @@
   text-align: center;
 }
 
+body{
+  background-color: rgb(26, 28, 29);
+}
+
 .main {
   text-align: center;
   padding-top: 10px;

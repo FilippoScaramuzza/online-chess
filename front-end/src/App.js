@@ -8,10 +8,10 @@ import ChessBoard from './ChessBoard'
 function App() {
   return (
 <Router>
-    <div className="main">
-      <Header as='h2' icon>
+    <div className="main ui">
+      <Header as='h2' icon inverted>
         <Icon name='chess' />
-        Online Chess
+        <p>Online Chess</p>
         <Header.Subheader>
           Play Chess Online with your friends!
         </Header.Subheader>

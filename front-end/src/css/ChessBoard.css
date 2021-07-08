@@ -19,6 +19,7 @@
 
 span{
     margin-right: 20px;
+    color: rgb(255, 255, 255)
 }
 
 @media only screen and (max-width: 500px) {
@@ -26,6 +27,7 @@ span{
         width: 100%!important;
         height: auto;
         justify-content: space-around!important;
+        margin-top: 20px;
     }
     .newline{
         display: block;

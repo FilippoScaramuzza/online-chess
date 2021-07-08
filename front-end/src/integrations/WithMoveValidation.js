@@ -1,9 +1,8 @@
-import React, { Component, version } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import PropTypes from 'prop-types';
 import Chess from 'chess.js';
 import socket from '../SocketConfig';
 import WinLostPopup from '../WinLostPopup';
-
 import Chessboard from 'chessboardjsx';
 
 class HumanVsHuman extends Component {
@@ -25,13 +24,15 @@ class HumanVsHuman extends Component {
     game: new Chess(),
     history: [],
     lost: false,
-    win: false
+    win: false,
+    //pieces: this.props.pieces
   };
 
   componentDidMount() {
     this.setState({ orientation: this.props.orientation })
     this.setState({ id: this.props.id })
     this.setState({ pgn: this.props.pgn })
+    //this.setState({ pieces: this.props.pieces })
 
     socket.on("moved", ({ from, to }) => {
       this.state.game.move({
@@ -43,9 +44,9 @@ class HumanVsHuman extends Component {
       this.setState(({ history, pieceSquare }) => ({
         fen: this.state.game.fen(),
         history: this.state.game.history({ verbose: true }),
-        squareStyles: squareStyling({ pieceSquare: to, history: this.state.game.history({verbose: true}) }),
+        squareStyles: squareStyling({ pieceSquare: to, history: this.state.game.history({ verbose: true }) }),
       }));
-      
+
       //this.highlightSquare(from, to)
 
       if (this.state.game.in_checkmate()) {
@@ -83,6 +84,10 @@ class HumanVsHuman extends Component {
 
       }
     }
+    // if (prevProps.pieces !== this.props.pieces) {
+    //   this.setState({ pieces: this.props.pieces })
+    //   this.forceUpdate()
+    // }
   }
 
   // keep clicked square style and remove hint squares
@@ -134,7 +139,7 @@ class HumanVsHuman extends Component {
     this.setState(({ history, pieceSquare }) => ({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
-      squareStyles: squareStyling({ pieceSquare, history: this.state.game.history({ verbose: true })})
+      squareStyles: squareStyling({ pieceSquare, history: this.state.game.history({ verbose: true }) })
     }));
 
     socket.emit("move", { id: this.state.id, from: sourceSquare, to: targetSquare, pgn: this.state.game.pgn() })
@@ -177,7 +182,7 @@ class HumanVsHuman extends Component {
     this.highlightSquare(square, squaresToHighlight);
   };
 
-  onMouseOutSquare = square => {return;}//this.removeHighlightSquare(square);
+  onMouseOutSquare = square => { return; }//this.removeHighlightSquare(square);
 
   // central squares get diff dropSquareStyles
   onDragOverSquare = square => {
@@ -191,7 +196,7 @@ class HumanVsHuman extends Component {
     if (this.state.game.turn() === 'b' && this.state.orientation !== "black") return
 
     this.setState(({ history }) => ({
-      squareStyles: squareStyling({ pieceSquare: square, history: this.state.game.history({verbose: true}) }),
+      squareStyles: squareStyling({ pieceSquare: square, history: this.state.game.history({ verbose: true }) }),
       pieceSquare: square
     }));
 
@@ -215,9 +220,24 @@ class HumanVsHuman extends Component {
     });
   };
 
+  chessPieces = (theme) => {
+    let pieces = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK'];
+    const returnPieces = {};
+    pieces.map((p) => {
+      returnPieces[p] = ({ squareWidth }) => (
+        <img style={{ width: squareWidth, height: squareWidth }} 
+        src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+        key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+        alt={p.toLowerCase()} />
+      );
+      return null;
+    });
+    return returnPieces;
+  };
+
   render() {
     const { fen, dropSquareStyle, squareStyles, orientation } = this.state;
-
+    console.log(this.props.pieces)
     return this.props.children({
       squareStyles,
       position: fen,
@@ -230,14 +250,16 @@ class HumanVsHuman extends Component {
       onSquareClick: this.onSquareClick,
       onSquareRightClick: this.onSquareRightClick,
       win: this.state.win,
-      lost: this.state.lost
+      lost: this.state.lost,
+      pieces: this.chessPieces(this.props.pieces)
     });
   }
 }
 
 export default function WithMoveValidation(props) {
+
   return (
-    <HumanVsHuman orientation={props.orientation} id={props.id} pgn={props.pgn}>
+    <HumanVsHuman orientation={props.orientation} id={props.id} pgn={props.pgn} pieces={props.pieces}>
       {({
         position,
         orientation,
@@ -250,28 +272,32 @@ export default function WithMoveValidation(props) {
         onSquareClick,
         onSquareRightClick,
         win,
-        lost
+        lost,
+        pieces
       }) => (
         <>
           <WinLostPopup win={win} lost={lost} reisgned={false} />
-            <Chessboard
-              id="humanVsHuman"
-              calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight/100)*70)}
-              position={position}
-              onDrop={onDrop}
-              onMouseOverSquare={onMouseOverSquare}
-              onMouseOutSquare={onMouseOutSquare}
-              boardStyle={{
-                borderRadius: '5px',
-                boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`
-              }}
-              squareStyles={squareStyles}
-              dropSquareStyle={dropSquareStyle}
-              onDragOverSquare={onDragOverSquare}
-              onSquareClick={onSquareClick}
-              onSquareRightClick={onSquareRightClick}
-              orientation={orientation}
-            />
+          <Chessboard
+            key={props.pieces}
+            id="humanVsHuman"
+            calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight / 100) * 70)}
+            position={position}
+            onDrop={onDrop}
+            onMouseOverSquare={onMouseOverSquare}
+            onMouseOutSquare={onMouseOutSquare}
+            pieces={pieces}
+            boardStyle={{
+              borderRadius: '5px',
+              boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`
+            }}
+            squareStyles={squareStyles}
+            sparePieces={false}
+            dropSquareStyle={dropSquareStyle}
+            onDragOverSquare={onDragOverSquare}
+            onSquareClick={onSquareClick}
+            onSquareRightClick={onSquareRightClick}
+            orientation={orientation}
+          />
         </>
       )}
     </HumanVsHuman>
