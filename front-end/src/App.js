@@ -7,19 +7,34 @@ import ChessBoard from './ChessBoard'
 
 function App() {
   return (
-<Router>
-    <div className="main ui">
-      <Header as='h2' icon inverted>
-        <Icon name='chess' />
-        <p>Online Chess</p>
-        <Header.Subheader>
-          Play Chess Online with your friends!
-        </Header.Subheader>
-      </Header><br /><br />
-      <Route path="/" exact component={NewGamePopup} />
-      <Route path="/" exact component={JoinGamePopup} />
-      <Route path="/game" component={ChessBoard} />
-    </div>
+    <Router>
+      <div className="main ui">
+        <Route path="/game">
+          <Header as='h2' inverted style={{ display: "flex", justifyContent: "center", paddingTop: "10px" }} textAlign="left">
+            <Icon name='chess' />
+            <Header.Content>
+              Online Chess
+              <Header.Subheader>Play Chess Online with your friends!</Header.Subheader>
+            </Header.Content>
+          </Header>
+
+        </Route>
+        <Route path="/" exact >
+          <>
+            <Header as='h2' icon inverted>
+              <Icon name='chess' />
+              <p>Online Chess</p>
+              <Header.Subheader>
+                Play Chess Online with your friends!
+              </Header.Subheader>
+            </Header>
+            <br /><br />
+          </>
+        </Route>
+        <Route path="/" exact component={NewGamePopup} />
+        <Route path="/" exact component={JoinGamePopup} />
+        <Route path="/game" component={ChessBoard} />
+      </div>
     </Router>
   );
 }

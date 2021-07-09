@@ -281,7 +281,7 @@ export default function WithMoveValidation(props) {
           <Chessboard
             key={props.pieces}
             id="humanVsHuman"
-            calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight / 100) * 70)}
+            calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight / 100) * 85)}
             position={position}
             onDrop={onDrop}
             onMouseOverSquare={onMouseOverSquare}
