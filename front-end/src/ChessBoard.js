@@ -78,6 +78,7 @@ function ChessBoard() {
 									<Dropdown.Item onClick={() => {setPieces("tournament")}}>Tournament</Dropdown.Item>
 									<Dropdown.Item onClick={() => {setPieces("newspaper")}}>Newspaper</Dropdown.Item>
 									<Dropdown.Item onClick={() => {setPieces("ocean")}}>Ocean</Dropdown.Item>
+									<Dropdown.Item onClick={() => {setPieces("8bit")}}>8-Bit</Dropdown.Item>
 								</Dropdown.Menu>
 							</Dropdown>
 							<Dropdown.Divider/><br/>
