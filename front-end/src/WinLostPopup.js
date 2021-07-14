@@ -20,7 +20,11 @@ function NewGamePopup(props) {
     }, [props.win, props.lost, props.resigned])
 
 	return (
-		<Popup open={open} onClose={() => setOpen(undefined)} modal>
+		<Popup open={open} onClose={() => {
+            setOpen(undefined);
+            setWin(false);
+            setLost(false);
+            }} modal>
 			<div className="modal">
 				<h3 className="ui horizontal divider header">
 					You {win ? "won" : ""} {lost ? "lost" : ""} {resigned ? "by resignation!" : "!"}

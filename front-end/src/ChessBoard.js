@@ -4,6 +4,7 @@ import { Button, Icon, Input, Dropdown } from 'semantic-ui-react';
 import { useLocation } from 'react-router-dom';
 import socket from './SocketConfig';
 import WinLostPopup from './WinLostPopup';
+import Parser from 'html-react-parser';
 
 import './css/ChessBoard.css'
 
@@ -49,6 +50,21 @@ function ChessBoard() {
 	const handleResignClick = () => {
 		socket.emit("resign", { id: game.id })
 		setResigned(true)
+	}
+
+	const displayMoves = () => {
+		let moves = game.pgn.split(" ")
+		let rows="";
+		for(let i = 1; i < moves.length; i+=3) {
+			rows+=	`<tr class="${i % 2 === 0 ? "even-row" : "odd-row"}">` +
+						`<td className="index">${moves[i-1]}</td>`+
+						`<td className="white">${moves[i]}</td>` +
+						`<td className="black">${moves[i+1] ? moves[i+1] : ""}</td>` +
+					"</tr>"
+		}
+
+		console.log(rows)
+		return rows;
 	}
 
 	return (
@@ -101,7 +117,15 @@ function ChessBoard() {
 					<Button.Content visible>
 						<Icon name='flag' />
 					</Button.Content>
-				</Button>
+				</Button><br/>
+
+				<p style={{fontSize: "20px", color: "white"}}>Moves:</p>
+				{/* <span>{game.pgn}</span> */}
+				<span>
+					<table className="moves-table">
+						{Parser(displayMoves())}
+					</table>
+				</span>
 			</div>
 			<div style={boardsContainer} className="chessboard">
 				<WithMoveValidation id={game.id} pgn={game.pgn} orientation={orientation} pieces={pieces} board={board}/>

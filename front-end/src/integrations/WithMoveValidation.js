@@ -50,8 +50,11 @@ class HumanVsHuman extends Component {
       //this.highlightSquare(from, to)
 
       if (this.state.game.in_checkmate()) {
+        console.log("Evidentemente ci sono ancora")
         this.setState({ lost: true })
+        socket.emit("fetch", {id: this.state.id})
         socket.emit("checkmate", { id: this.state.id })
+        this.setState({game : new Chess()})
       }
     })
 
@@ -88,6 +91,12 @@ class HumanVsHuman extends Component {
     //   this.setState({ pieces: this.props.pieces })
     //   this.forceUpdate()
     // }
+  }
+
+  componentWillUnmount() {
+    this.setState({lost: false});
+    this.setState({win: false});
+    console.log("UNMOUNTING")
   }
 
   // keep clicked square style and remove hint squares

@@ -22,6 +22,27 @@ span{
     color: rgb(255, 255, 255)
 }
 
+table{
+    border-collapse: collapse;
+    width: 50%;
+}
+
+.index{
+    width: 10%;
+}
+
+.white{
+    width: 30%;
+}
+
+.blac{
+    width: 30%;
+}
+
+.odd-row{
+    background-color: rgb(56 58 59);
+}
+
 @media only screen and (max-width: 500px) {
     .chessboard {
         width: 100%!important;
@@ -37,5 +58,9 @@ span{
         width: 100%!important;
         padding-top: 0px;
         text-align: center;
+    }
+
+    .moves-table{
+        display: none;
     }
   }

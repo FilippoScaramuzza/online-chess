@@ -90,6 +90,8 @@ io.on("connection", (socket) => {
 			if (game.id === id) {
 				game.pgn = pgn
 				socket.to(id).emit("moved", { from: from, to: to })
+				socket.to(id).emit("fetch", { game: game })
+				socket.emit("fetch", { game: game })
 			}
 		})
 
@@ -98,21 +100,37 @@ io.on("connection", (socket) => {
 
 	socket.on("resign", ({ id }) => {
 		socket.to(id).emit("resigned")
+		let index = -1;
+		
 		games.forEach(game => {
 			if (game.id === id) {
 				game.status = 'resigned'
+				index = games.indexOf(game)
 			}
 		})
+		
+		if (index > -1) {
+			games.splice(index, 1);
+		}
+
+		// array = [2, 9]
 		logServerStatus();
 	})
 
 	socket.on("checkmate", ({ id }) => {
 		socket.to(id).emit("checkmate")
+		let index = -1;
 		games.forEach(game => {
 			if (game.id === id) {
 				game.status = "checkmate"
+				index = games.indexOf(game)
 			}
 		})
+
+		if(index > -1) {
+			games.splice(index, 1);
+		}
+		logServerStatus();
 	})
 
 	socket.on("disconnecting", () => {
