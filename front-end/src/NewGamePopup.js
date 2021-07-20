@@ -13,9 +13,6 @@ function NewGamePopup() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
-		socket.on("connect", () => {
-			console.log("Connected socket");
-		});
 
 		socket.emit("create", { username: username })
 		setLoading(true)

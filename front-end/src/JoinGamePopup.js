@@ -18,7 +18,7 @@ function NewGamePopup() {
 		e.preventDefault()
 
 		socket.on("connect", () => {
-			console.log("Connected socket");
+			
 		});
 
 		setLoading(true)

@@ -12,7 +12,7 @@ class HumanVsHuman extends Component {
     id: this.props.id,
     fen: 'start',
     orientation: this.props.orientation,
-    pgn: this.props.pgn,
+    pgn: '',
     // square styles for active drop squares
     dropSquareStyle: {},
     // custom square styles
@@ -31,10 +31,12 @@ class HumanVsHuman extends Component {
   componentDidMount() {
     this.setState({ orientation: this.props.orientation })
     this.setState({ id: this.props.id })
-    this.setState({ pgn: this.props.pgn })
-    //this.setState({ pieces: this.props.pieces })
+
+    console.log(this.state.game.pgn())
 
     socket.on("moved", ({ from, to }) => {
+      console.log(this.state.game.pgn())
+      debugger;
       this.state.game.move({
         from: from,
         to: to,
@@ -44,29 +46,20 @@ class HumanVsHuman extends Component {
       this.setState(({ history, pieceSquare }) => ({
         fen: this.state.game.fen(),
         history: this.state.game.history({ verbose: true }),
-        squareStyles: squareStyling({ pieceSquare: to, history: this.state.game.history({ verbose: true }) }),
+        squareStyles: squareStyling({ pieceSquare: to, history: this.state.game.history({ verbose: true }) })
       }));
 
-      //this.highlightSquare(from, to)
-
       if (this.state.game.in_checkmate()) {
-        console.log("Evidentemente ci sono ancora")
-        this.setState({ lost: true })
-        socket.emit("fetch", {id: this.state.id})
         socket.emit("checkmate", { id: this.state.id })
-        this.setState({game : new Chess()})
+        this.setState({ lost: true })
+        this.state.game.clear()
       }
     })
 
     socket.on("checkmate", () => {
       this.setState({ win: true })
+      this.state.game.clear()
     })
-
-    if (this.props.pgn !== "") {
-      let g = new Chess()
-      g.load_pgn(this.props.pgn)
-      this.setState({ game: g })
-    }
   }
 
   componentDidUpdate(prevProps) {
@@ -77,26 +70,6 @@ class HumanVsHuman extends Component {
     if (prevProps.id !== this.props.id) {
       this.setState({ id: this.props.id })
     }
-    if (prevProps.pgn !== this.props.pgn) {
-      this.setState({ pgn: this.props.pgn })
-      if (this.props.pgn !== "") {
-        let g = new Chess()
-        g.load_pgn(this.props.pgn)
-        this.setState({ game: g })
-        this.setState({ fen: g.fen() })
-
-      }
-    }
-    // if (prevProps.pieces !== this.props.pieces) {
-    //   this.setState({ pieces: this.props.pieces })
-    //   this.forceUpdate()
-    // }
-  }
-
-  componentWillUnmount() {
-    this.setState({lost: false});
-    this.setState({win: false});
-    console.log("UNMOUNTING")
   }
 
   // keep clicked square style and remove hint squares
@@ -152,6 +125,8 @@ class HumanVsHuman extends Component {
       history: this.state.game.history({ verbose: true }),
       squareStyles: squareStyling({ pieceSquare, history: this.state.game.history({ verbose: true }) })
     }));
+
+    debugger;
 
     socket.emit("move", { id: this.state.id, from: sourceSquare, to: targetSquare, pgn: this.state.game.pgn() })
 
@@ -269,7 +244,7 @@ class HumanVsHuman extends Component {
 export default function WithMoveValidation(props) {
 
   return (
-    <HumanVsHuman orientation={props.orientation} id={props.id} pgn={props.pgn} pieces={props.pieces}>
+    <HumanVsHuman orientation={props.orientation} id={props.id} pieces={props.pieces}>
       {({
         position,
         orientation,

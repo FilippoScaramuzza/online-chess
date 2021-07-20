@@ -88,10 +88,8 @@ io.on("connection", (socket) => {
 	socket.on("move", ({ id, from, to, pgn }) => {
 		games.forEach(game => {
 			if (game.id === id) {
-				game.pgn = pgn
+				//game.pgn = pgn
 				socket.to(id).emit("moved", { from: from, to: to })
-				socket.to(id).emit("fetch", { game: game })
-				socket.emit("fetch", { game: game })
 			}
 		})
 
@@ -122,7 +120,6 @@ io.on("connection", (socket) => {
 		let index = -1;
 		games.forEach(game => {
 			if (game.id === id) {
-				game.status = "checkmate"
 				index = games.indexOf(game)
 			}
 		})
