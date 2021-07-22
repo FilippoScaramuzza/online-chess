@@ -28,7 +28,7 @@ function WinLostPopup(props) {
         }} modal>
             <div className="modal">
                 <h3 className="ui horizontal divider header">
-                    You {win ? "won" : ""} {lost ? "lost" : ""} {resigned ? "by resignation!" : "!"}
+                    You {win ? "won" : ""} {lost ? "lost" : ""}{resigned ? " by resignation!" : "!"}
                 </h3>
                 <br />
                 <Link to="/">

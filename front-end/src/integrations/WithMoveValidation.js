@@ -12,7 +12,7 @@ class HumanVsHuman extends Component {
     id: this.props.id,
     fen: 'start',
     orientation: this.props.orientation,
-    pgn: '',
+    pgn: this.props.pgn,
     // square styles for active drop squares
     dropSquareStyle: {},
     // custom square styles
@@ -31,9 +31,10 @@ class HumanVsHuman extends Component {
   componentDidMount() {
     this.setState({ orientation: this.props.orientation })
     this.setState({ id: this.props.id })
+    this.setState({ pgn: this.props.pgn })
 
     socket.on("moved", ({ from, to }) => {
-      
+
       this.state.game.move({
         from: from,
         to: to,
@@ -66,6 +67,13 @@ class HumanVsHuman extends Component {
     }
     if (prevProps.id !== this.props.id) {
       this.setState({ id: this.props.id })
+    }
+
+    if (prevProps.pgn !== this.props.pgn) {
+      let g = new Chess()
+      g.load_pgn(this.props.pgn)
+      if(this.state.game.fen() !== g.fen()) return;
+      this.setState({ pgn: this.props.pgn, game: g, fen: g.fen() })
     }
   }
 
@@ -117,7 +125,7 @@ class HumanVsHuman extends Component {
 
     // illegal move
     if (move === null) return;
-    
+
     this.setState(({ history, pieceSquare }) => ({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
@@ -169,7 +177,7 @@ class HumanVsHuman extends Component {
   // central squares get diff dropSquareStyles
   onDragOverSquare = square => {
     this.setState({
-      dropSquareStyle: { boxShadow: 'inset 0 0 1px 2px rgb(100, 100, 100)', cursor: "-webkit-grabbing;" }
+      dropSquareStyle: { boxShadow: 'inset 0 0 1px 2px rgb(100, 100, 100)', cursor: "-webkit-grabbing" }
     });
   };
 
@@ -208,10 +216,10 @@ class HumanVsHuman extends Component {
     pieces.map((p) => {
       returnPieces[p] = ({ squareWidth, isDragging }) => (
         <img style={{ width: squareWidth, height: squareWidth, cursor: isDragging ? "-webkit-grabbing" : "-webkit-grab", pointerEvents: "auto!important" }}
-        src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-        key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
           alt={p.toLowerCase()}
-          
+
         />
       );
       return null;
@@ -242,7 +250,7 @@ class HumanVsHuman extends Component {
 export default function WithMoveValidation(props) {
 
   return (
-    <HumanVsHuman orientation={props.orientation} id={props.id} pieces={props.pieces}>
+    <HumanVsHuman orientation={props.orientation} id={props.id} pieces={props.pieces} pgn={props.pgn}>
       {({
         position,
         orientation,
