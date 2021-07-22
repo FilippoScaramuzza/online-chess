@@ -17,10 +17,6 @@ function NewGamePopup() {
 	const handleSubmit = (e) => {
 		e.preventDefault()
 
-		socket.on("connect", () => {
-			
-		});
-
 		setLoading(true)
 
 		socket.emit("join", { username: username, id: gameid })
@@ -32,11 +28,13 @@ function NewGamePopup() {
 		})
 
 		socket.on("gamenotfound", () => {
+			setLoading(false)
 			setGameNotFound(true)
 			setUsernameAlreadyInUse(false)
 		})
 
 		socket.on("usernamealreadyinuse", () => {
+			setLoading(false)
 			setUsernameAlreadyInUse(true)
 			setGameNotFound(false)
 		})
@@ -59,7 +57,7 @@ function NewGamePopup() {
 					Game ID
 				</h3>
 				<div style={{ textAlign: "center", color:'red' }}>{gameNotFound ? "Game not found, enter a valid ID" : ""}</div>
-					<input value={gameid} onChange={e => { setGameid(e.target.value) }}></input>
+					<input value={gameid} onChange={e => { setGameid(e.target.value.toLowerCase()) }}></input>
 					<br /><br />
 					
 					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmit(e)} disabled={username === "" || gameid === "" ? true : false}>

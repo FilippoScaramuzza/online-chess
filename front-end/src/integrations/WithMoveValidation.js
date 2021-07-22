@@ -36,7 +36,6 @@ class HumanVsHuman extends Component {
 
     socket.on("moved", ({ from, to }) => {
       console.log(this.state.game.pgn())
-      debugger;
       this.state.game.move({
         from: from,
         to: to,
@@ -100,7 +99,7 @@ class HumanVsHuman extends Component {
       },
       {}
     );
-    
+
     delete highlightStyles[sourceSquare]
 
     this.setState(({ squareStyles }) => ({
@@ -125,8 +124,6 @@ class HumanVsHuman extends Component {
       history: this.state.game.history({ verbose: true }),
       squareStyles: squareStyling({ pieceSquare, history: this.state.game.history({ verbose: true }) })
     }));
-
-    debugger;
 
     socket.emit("move", { id: this.state.id, from: sourceSquare, to: targetSquare, pgn: this.state.game.pgn() })
 
@@ -173,7 +170,7 @@ class HumanVsHuman extends Component {
   // central squares get diff dropSquareStyles
   onDragOverSquare = square => {
     this.setState({
-      dropSquareStyle: { boxShadow: 'inset 0 0 1px 2px rgb(100, 100, 100)' }
+      dropSquareStyle: { boxShadow: 'inset 0 0 1px 2px rgb(100, 100, 100)', cursor: "-webkit-grabbing;" }
     });
   };
 
@@ -210,11 +207,13 @@ class HumanVsHuman extends Component {
     let pieces = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK', 'bP', 'bN', 'bB', 'bR', 'bQ', 'bK'];
     const returnPieces = {};
     pieces.map((p) => {
-      returnPieces[p] = ({ squareWidth }) => (
-        <img style={{ width: squareWidth, height: squareWidth }}
-          src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-          key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-          alt={p.toLowerCase()} />
+      returnPieces[p] = ({ squareWidth, isDragging }) => (
+        <img style={{ width: squareWidth, height: squareWidth, cursor: isDragging ? "-webkit-grabbing" : "-webkit-grab", pointerEvents: "auto!important" }}
+        src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+        key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          alt={p.toLowerCase()}
+          
+        />
       );
       return null;
     });
@@ -268,13 +267,12 @@ export default function WithMoveValidation(props) {
             calcWidth={({ screenWidth, screenHeight }) => (screenWidth < 500 ? 350 : (screenHeight / 100) * 85)}
             position={position}
             onDrop={onDrop}
-            onMouseOverSquare={onMouseOverSquare}
             onMouseOutSquare={onMouseOutSquare}
             pieces={pieces}
             boardStyle={{
               borderRadius: '5px',
               boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`,
-              backgroundImage: "url(/chess-themes/board/" + props.board +")",
+              backgroundImage: "url(/chess-themes/board/" + props.board + ")",
               backgroundSize: "cover"
             }}
             squareStyles={squareStyles}

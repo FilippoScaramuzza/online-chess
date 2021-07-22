@@ -56,10 +56,10 @@ function ChessBoard() {
 		let moves = game.pgn.split(" ")
 		let rows = "";
 		for (let i = 1; i < moves.length; i += 3) {
-			rows += `<tr className="${i % 2 === 0 ? "even-row" : "odd-row"}">` +
-				`<td className="index">${moves[i - 1]}</td>` +
-				`<td className="white">${moves[i]}</td>` +
-				`<td className="black">${moves[i + 1] ? moves[i + 1] : ""}</td>` +
+			rows += `<tr class="${i % 2 === 0 ? "even-row" : "odd-row"}">` +
+				`<td className="index"><span>${moves[i - 1]}</span></td>` +
+				`<td className="white"><span>${moves[i]}</span></td>` +
+				`<td className="black"><span>${moves[i + 1] ? moves[i + 1] : ""}</span></td>` +
 				"</tr>"
 		}
 
@@ -118,15 +118,16 @@ function ChessBoard() {
 					</Button.Content>
 				</Button><br />
 
-				<p style={{ fontSize: "20px", color: "white" }}>Moves:</p>
-				{/* <span>{game.pgn}</span> */}
-				<span>
-					<table className="moves-table">
+				<div className="moves-div">
+					<br />
+					<p style={{ fontSize: "20px", color: "white" }}>Moves:</p>
+
+					<table>
 						<tbody>
 							{Parser(displayMoves())}
 						</tbody>
 					</table>
-				</span>
+				</div>
 			</div>
 			<div style={boardsContainer} className="chessboard">
 				<WithMoveValidation id={game.id} pgn={game.pgn} orientation={orientation} pieces={pieces} board={board} />
