@@ -56,7 +56,6 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("join", ({ username, id }) => {
-		console.log(`${username} wants to join ${id}!`)
 		let gamefound = false;
 		let usernameAlreadyInUse = false;
 		games.forEach(game => {

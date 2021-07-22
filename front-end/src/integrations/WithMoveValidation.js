@@ -32,16 +32,14 @@ class HumanVsHuman extends Component {
     this.setState({ orientation: this.props.orientation })
     this.setState({ id: this.props.id })
 
-    console.log(this.state.game.pgn())
-
     socket.on("moved", ({ from, to }) => {
-      console.log(this.state.game.pgn())
+      
       this.state.game.move({
         from: from,
         to: to,
         promotion: 'q' // always promote to a queen for example simplicity
       });
-      // illegal move
+
       this.setState(({ history, pieceSquare }) => ({
         fen: this.state.game.fen(),
         history: this.state.game.history({ verbose: true }),
@@ -119,6 +117,7 @@ class HumanVsHuman extends Component {
 
     // illegal move
     if (move === null) return;
+    
     this.setState(({ history, pieceSquare }) => ({
       fen: this.state.game.fen(),
       history: this.state.game.history({ verbose: true }),
