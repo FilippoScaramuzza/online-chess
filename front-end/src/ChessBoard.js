@@ -47,10 +47,6 @@ function ChessBoard() {
 			setOpponentResigned(true)
 		})
 
-		socket.on('checkmate', () => {
-			socket.emit("fetch", {id: game.id})
-		})
-
 	}, [locState.game.id, locState.username]);
 
 	const handleResignClick = () => {
