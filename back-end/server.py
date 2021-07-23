@@ -132,6 +132,13 @@ async def disconnect(sid):
             await sio.emit('disconnected', room=room['id'])
             room['sids'].remove(sid)
 
+        if len(room['sids']) == 0:
+            for game in games:
+                if game['id'] == room['id']:
+                    games.remove(game)
+
+            rooms.remove(room)
+
     log()
 
 def log():
@@ -143,7 +150,11 @@ def log():
 
     print(json.dumps(games, indent=2))
 
+    print(f'ROOMS: ')
+
+    print(json.dumps(rooms, indent=2))
+
 if __name__ == '__main__':
     log()
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 8080))
     web.run_app(app, port = port)

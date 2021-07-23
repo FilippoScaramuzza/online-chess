@@ -18,6 +18,7 @@ function ChessBoard() {
 	const [opponentResigned, setOpponentResigned] = useState(false)
 	const [pieces, setPieces] = useState("ocean")
 	const [board, setBoard] = useState("blue.svg")
+
 	const boardsContainer = {
 		display: "flex",
 		justifyContent: "space-around",
@@ -27,6 +28,7 @@ function ChessBoard() {
 	}
 
 	useEffect(() => {
+
 		socket.emit("fetch", { id: locState.game.id })
 		socket.on("fetch", ({ game }) => {
 			setGame(game)
@@ -43,6 +45,10 @@ function ChessBoard() {
 		})
 		socket.on("resigned", () => {
 			setOpponentResigned(true)
+		})
+
+		socket.on('checkmate', () => {
+			socket.emit("fetch", {id: game.id})
 		})
 
 	}, [locState.game.id, locState.username]);

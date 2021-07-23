@@ -69,12 +69,12 @@ class HumanVsHuman extends Component {
       this.setState({ id: this.props.id })
     }
 
-    if (prevProps.pgn !== this.props.pgn) {
-      let g = new Chess()
-      g.load_pgn(this.props.pgn)
-      if(this.state.game.fen() !== g.fen()) return;
-      this.setState({ pgn: this.props.pgn, game: g, fen: g.fen() })
-    }
+    // if (prevProps.reconnectKey !== this.props.reconnectKey) {
+    //   console.log(this.props.pgn)
+    //   let g = new Chess()
+    //   g.load_pgn(this.props.pgn)
+    //   this.setState({ pgn: this.props.pgn, game: g, fen: g.fen() })
+    // }
   }
 
   // keep clicked square style and remove hint squares
