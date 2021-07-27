@@ -15,6 +15,7 @@ idna-ssl
 multidict
 pycparser
 pyOpenSSL
+python-chess==0.31.4
 python-engineio
 python-socketio
 six

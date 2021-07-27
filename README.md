@@ -2,9 +2,7 @@
 
 ## TODO
 
-- [x] Delete old match (if there aren't players connected)
-- [x] Resign from game
-- [x] Show checkmates
-- [x] Reload page -> persistent
-- [ ] Chessboards colors
-- [ ] Spectate mode
+- [ ] Patta nelle partite multiplayer
+- [ ] Vitttoria, Sconfitta, Patta partite con computer
+- [ ] Aggiornare PGN partite computer
+- [ ] AI?

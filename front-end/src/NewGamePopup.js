@@ -11,12 +11,24 @@ function NewGamePopup() {
 	const [redirect, setRedirect] = useState(false)
 	const [loading, setLoading] = useState(false)
 
-	const handleSubmit = (e) => {
+	const handleSubmitMultiplayer = (e) => {
 		e.preventDefault()
 
 		socket.emit("create", { username: username })
 		setLoading(true)
 		socket.on("created", ({ game }) => {
+			setGame(game)
+			setRedirect(true)
+			setLoading(false)
+		})
+	}
+
+	const handleSubmitComputer = (e) => {
+		e.preventDefault()
+
+		socket.emit("createComputerGame", { username: username })
+		setLoading(true)
+		socket.on("createdComputerGame", ({ game }) => {
 			setGame(game)
 			setRedirect(true)
 			setLoading(false)
@@ -38,8 +50,11 @@ function NewGamePopup() {
 					<input value={username} onChange={e => { setUsername(e.target.value) }}></input>
 					<br /><br />
 					
-					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmit(e)} disabled={username==="" ? true : false}>
-						Create
+					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmitMultiplayer(e)} disabled={username==="" ? true : false}>
+						Create Multiplayer Game
+					</button>
+					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmitComputer(e)} disabled={username==="" ? true : false}>
+						Create Game against Computer
 					</button>
 					{(redirect) ? <Redirect to={{pathname: "/game", state: {username: username, game: game}}} /> : ''}
 				</form>

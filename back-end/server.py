@@ -3,7 +3,10 @@ import aiohttp_cors
 import socketio
 import random
 import os
+import io
 import json
+import chess
+import chess.pgn
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
@@ -34,6 +37,7 @@ async def create(sid, data):
         'id': game_id,
         'players': [data['username']],
         'pgn': '',
+        'type': 'multiplayer',
         'status': 'starting'
     })
 
@@ -90,10 +94,25 @@ async def move(sid, data):  # id, from, to, pgn
     for game in games:
         if game['id'] == data['id']:
             game['pgn'] = data['pgn']
-            await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
-            await sio.emit('fetch', {'game': game}, room = data['id'])
+            if game['type'] == 'computer':
+                pgn = io.StringIO(data['pgn'])
+                game = chess.pgn.read_game(pgn)
+                board = game.board()
+                for move in game.mainline_moves():
+                    board.push(move)
 
-    log()
+                legal_moves = [str(move) for move in board.legal_moves]
+                random_move = random.choice(legal_moves)
+                move_from = random_move[:2]
+                move_to = random_move[2:]
+
+                await sio.emit('moved', {'from': move_from, 'to': move_to}, room = data['id'])
+            
+            elif game['type'] == 'multiplayer':
+                await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
+                await sio.emit('fetch', {'game': game}, room = data['id'])
+
+    #log()
 
 @sio.event
 async def resign(sid, data):
@@ -141,6 +160,26 @@ async def disconnect(sid):
 
     log()
 
+
+@sio.event
+async def createComputerGame(sid, data):
+    game_id = ''.join(random.choice(
+        '0123456789abcdefghijklmnopqrstuvwxyz') for i in range(4))
+    games.append({
+        'id': game_id,
+        'players': [data['username'], 'AI'],
+        'pgn': '',
+        'type': 'computer',
+        'status': 'starting'
+    })
+
+    sio.enter_room(sid, game_id)
+    rooms.append({'id': game_id, 'sids': [sid]})
+    await sio.emit('createdComputerGame', {'game': games[len(games)-1]})
+
+    log()
+
+
 def log():
     os.system('cls||clear')
 
@@ -150,9 +189,9 @@ def log():
 
     print(json.dumps(games, indent=2))
 
-    print(f'ROOMS: ')
+    # print(f'ROOMS: ')
 
-    print(json.dumps(rooms, indent=2))
+    # print(json.dumps(rooms, indent=2))
 
 if __name__ == '__main__':
     log()
