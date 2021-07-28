@@ -83,7 +83,7 @@ function ChessBoard() {
 				<br />
 				<br />
 				<span>Gamne ID:</span>
-				<Input readOnly style={{ width: "60px" }} value={game.id} />
+				<Input readOnly style={{ width: "65px" }} value={game.id} />
 				<Dropdown icon="setting" style={{ color: "white", marginLeft: "20px" }} pointing className='link item'>
 					<Dropdown.Menu>
 						<Dropdown.Item>
@@ -119,7 +119,7 @@ function ChessBoard() {
 						<Icon name='flag' />
 					</Button.Content>
 				</Button><br />
-				<span>{game.pgn}</span>
+				{/* <span>{game.pgn}</span> */}
 				<div className="moves-div">
 					<br />
 					<p style={{ fontSize: "20px", color: "white" }}>Moves:</p>

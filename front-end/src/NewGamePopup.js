@@ -53,6 +53,8 @@ function NewGamePopup() {
 					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmitMultiplayer(e)} disabled={username==="" ? true : false}>
 						Create Multiplayer Game
 					</button>
+					<br className='button-spacing'/>
+					<br className='button-spacing'/>
 					<button className={loading ? "ui loading button" : "ui button"} onClick={e => handleSubmitComputer(e)} disabled={username==="" ? true : false}>
 						Create Game against Computer
 					</button>

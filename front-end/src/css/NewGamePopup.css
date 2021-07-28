@@ -67,3 +67,13 @@
 .popup-overlay {
     background: rgba(0, 0, 0, 0.5);
   }
+
+.button-spacing{
+  display: none;
+}
+
+@media only screen and (max-width: 500px) {
+  .button-spacing{
+    display: block;
+  } 
+}
