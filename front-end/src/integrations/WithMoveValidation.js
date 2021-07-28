@@ -25,6 +25,7 @@ class HumanVsHuman extends Component {
     history: [],
     lost: false,
     win: false,
+    draw: false,
     //pieces: this.props.pieces
   };
 
@@ -52,10 +53,24 @@ class HumanVsHuman extends Component {
         this.setState({ lost: true })
         this.state.game.clear()
       }
+
+      if (this.state.game.in_draw() || 
+          this.state.game.in_stalemate() || 
+          this.state.game.in_threefold_repetition() || 
+          this.state.game.insufficient_material()) {
+          socket.emit("draw", { id: this.state.id })
+          this.setState({ draw: true })
+          this.state.game.clear()
+      }
     })
 
     socket.on("checkmate", () => {
       this.setState({ win: true })
+      this.state.game.clear()
+    })
+
+    socket.on("draw", () => {
+      this.setState({ draw: true })
       this.state.game.clear()
     })
   }
@@ -242,6 +257,7 @@ class HumanVsHuman extends Component {
       onSquareRightClick: this.onSquareRightClick,
       win: this.state.win,
       lost: this.state.lost,
+      draw: this.state.draw,
       pieces: this.chessPieces(this.props.pieces)
     });
   }
@@ -264,10 +280,11 @@ export default function WithMoveValidation(props) {
         onSquareRightClick,
         win,
         lost,
+        draw,
         pieces
       }) => (
         <>
-          <WinLostPopup win={win} lost={lost} reisgned={false} />
+          <WinLostPopup win={win} lost={lost} draw={draw} reisgned={false} />
           <Chessboard
             key={props.pieces}
             id="humanVsHuman"

@@ -96,18 +96,67 @@ async def move(sid, data):  # id, from, to, pgn
             game['pgn'] = data['pgn']
             if game['type'] == 'computer':
                 pgn = io.StringIO(data['pgn'])
-                game = chess.pgn.read_game(pgn)
-                board = game.board()
-                for move in game.mainline_moves():
+                chess_game = chess.pgn.read_game(pgn)
+                board = chess_game.board()
+                for move in chess_game.mainline_moves():
                     board.push(move)
 
+                if board.is_checkmate():
+                    await sio.emit('checkmate', room=data['id'])
+                    await sio.emit('fetch', {'game': game}, room = data['id'])
+                    index = -1
+                    for g in games:
+                        if g['id'] == g['id']:
+                            index = games.index(g)
+
+                    if index > -1:
+                        games.pop(index)
+
+                    log()
+                    return
+                
+                if board.is_stalemate() or board.is_fivefold_repetition() or board.is_insufficient_material():
+                    await sio.emit('draw', room=data['id'])
+                    index = -1
+                    for g in games:
+                        if g['id'] == data['id']:
+                            index = games.index(g)
+
+                    if index > -1:
+                        games.pop(index)
+                    
+                    log()
+                    return
+
                 legal_moves = [str(move) for move in board.legal_moves]
+                if len(legal_moves) == 0:
+                    return
                 random_move = random.choice(legal_moves)
                 move_from = random_move[:2]
                 move_to = random_move[2:]
 
                 await sio.emit('moved', {'from': move_from, 'to': move_to}, room = data['id'])
+
+                chess_game.end().add_main_variation(chess.Move.from_uci(random_move))
+                game['pgn'] = str(chess_game.variations[0])
+
+                board = chess_game.board()
+                for move in chess_game.mainline_moves():
+                    board.push(move)
+
+                await sio.emit('fetch', {'game': game}, room = data['id'])
+                # pgn_not_formatted = data['pgn']
+                # if pgn_not_formatted[len(pgn_not_formatted)-4] == '.':
+                #     pgn_not_formatted += f' {random_move}'
+                # else:
+                #     next_move = int(pgn_not_formatted[len(pgn_not_formatted) - 5])
+                #     pgn_not_formatted += f' {str(next_move+1)}. {random_move}'
             
+                # game = chess.pgn.read_game(io.StringIO(pgn_not_formatted))
+
+                # print(pgn_not_formatted)
+
+
             elif game['type'] == 'multiplayer':
                 await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
                 await sio.emit('fetch', {'game': game}, room = data['id'])
@@ -130,6 +179,19 @@ async def resign(sid, data):
 @sio.event
 async def checkmate(sid, data):
     await sio.emit('checkmate', room=data['id'], skip_sid=sid)
+    index = -1
+    for game in games:
+        if game['id'] == data['id']:
+            index = games.index(game)
+
+    if index > -1:
+        games.pop(index)
+    
+    log()
+
+@sio.event
+async def draw(sid, data):
+    await sio.emit('draw', room=data['id'], skip_sid=sid)
     index = -1
     for game in games:
         if game['id'] == data['id']:

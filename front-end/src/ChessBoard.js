@@ -17,7 +17,7 @@ function ChessBoard() {
 	const [resigned, setResigned] = useState(false)
 	const [opponentResigned, setOpponentResigned] = useState(false)
 	const [pieces, setPieces] = useState("ocean")
-	const [board, setBoard] = useState("blue.svg")
+	const [board, setBoard] = useState("wood4.jpg")
 
 	const boardsContainer = {
 		display: "flex",
@@ -73,7 +73,7 @@ function ChessBoard() {
 			<div className="game_details">
 
 				{disconnected ? <><p style={{ color: "red" }}>Opponent disconnected...</p><br /></> : ""}
-				<WinLostPopup win={opponentResigned ? true : false} lost={resigned ? true : false} resigned={(opponentResigned || resigned) ? true : false} />
+				<WinLostPopup win={opponentResigned ? true : false} lost={resigned ? true : false} draw={false} resigned={(opponentResigned || resigned) ? true : false} />
 				<div>
 					<div>
 						<span><span style={{ color: "grey" }}>Player 1 (White):</span> {(game.players[0]) ? game.players[0] : "waiting..."}</span><br className="newline" />
@@ -119,7 +119,7 @@ function ChessBoard() {
 						<Icon name='flag' />
 					</Button.Content>
 				</Button><br />
-
+				<span>{game.pgn}</span>
 				<div className="moves-div">
 					<br />
 					<p style={{ fontSize: "20px", color: "white" }}>Moves:</p>

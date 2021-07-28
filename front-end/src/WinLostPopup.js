@@ -8,17 +8,27 @@ function WinLostPopup(props) {
     const [open, setOpen] = useState(undefined)
     const [win, setWin] = useState(props.win)
     const [lost, setLost] = useState(props.lost)
+    const [draw, setDraw] = useState(props.draw)
     const [resigned, setResigned] = useState(props.resigned)
 
     useEffect(() => {
-        if (props.win || props.lost) {
+        if (props.win || props.lost || props.draw) {
             setOpen(true)
         }
         setWin(props.win)
         setLost(props.lost)
+        setDraw(props.draw)
         setResigned(props.resigned)
+        
+    }, [props.win, props.lost, props.draw, props.resigned])
 
-    }, [props.win, props.lost, props.resigned])
+    const renderMessage = () => {
+        if (win || lost)
+            return `You ${win ? "won" : ""}${lost ? "lost" : ""}${resigned ? " by resignation!" : "!"}`
+        else if (draw) {
+            return `It is a draw!`
+        }
+    }
 
     return (
         <Popup open={open} onClose={() => {
@@ -28,7 +38,7 @@ function WinLostPopup(props) {
         }} modal>
             <div className="modal">
                 <h3 className="ui horizontal divider header">
-                    You {win ? "won" : ""} {lost ? "lost" : ""}{resigned ? " by resignation!" : "!"}
+                    {renderMessage()}
                 </h3>
                 <br />
                 <Link to="/">

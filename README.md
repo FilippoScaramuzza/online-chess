@@ -2,7 +2,7 @@
 
 ## TODO
 
-- [ ] Patta nelle partite multiplayer
-- [ ] Vitttoria, Sconfitta, Patta partite con computer
-- [ ] Aggiornare PGN partite computer
+- [x] Patta nelle partite multiplayer
+- [x] Vitttoria, Sconfitta, Patta partite con computer
+- [x] Aggiornare PGN partite computer
 - [ ] AI?
