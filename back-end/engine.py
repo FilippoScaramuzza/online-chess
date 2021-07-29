@@ -20,6 +20,6 @@ class Engine:
         return stockfish.get_best_move()
 
     def get_random_move(self):
-        legal_moves = [str(move) for move in board.legal_moves]
+        legal_moves = [str(move) for move in self.board.legal_moves]
         return random.choice(legal_moves)
     
