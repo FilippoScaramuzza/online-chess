@@ -119,7 +119,7 @@ function ChessBoard() {
 						<Icon name='flag' />
 					</Button.Content>
 				</Button><br />
-				{/* <span>{game.pgn}</span> */}
+				<span>{game.pgn}</span>
 				<div className="moves-div">
 					<br />
 					<p style={{ fontSize: "20px", color: "white" }}>Moves:</p>

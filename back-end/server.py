@@ -7,6 +7,7 @@ import io
 import json
 import chess
 import chess.pgn
+from engine import Engine
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
@@ -127,17 +128,22 @@ async def move(sid, data):  # id, from, to, pgn
                     
                     log()
                     return
+                
+                engine = Engine(board)
+                
+                move = ''
 
-                legal_moves = [str(move) for move in board.legal_moves]
-                if len(legal_moves) == 0:
-                    return
-                random_move = random.choice(legal_moves)
-                move_from = random_move[:2]
-                move_to = random_move[2:]
+                if game['ai'] == 'random':
+                    move = engine.get_random_move()
+                elif game['ai'] == 'stockfish':
+                    move = engine.get_stockfish_best_move()
+
+                move_from = move[:2]
+                move_to = move[2:]
 
                 await sio.emit('moved', {'from': move_from, 'to': move_to}, room = data['id'])
 
-                chess_game.end().add_main_variation(chess.Move.from_uci(random_move))
+                chess_game.end().add_main_variation(chess.Move.from_uci(move))
                 game['pgn'] = str(chess_game.variations[0])
 
                 board = chess_game.board()
@@ -145,16 +151,6 @@ async def move(sid, data):  # id, from, to, pgn
                     board.push(move)
 
                 await sio.emit('fetch', {'game': game}, room = data['id'])
-                # pgn_not_formatted = data['pgn']
-                # if pgn_not_formatted[len(pgn_not_formatted)-4] == '.':
-                #     pgn_not_formatted += f' {random_move}'
-                # else:
-                #     next_move = int(pgn_not_formatted[len(pgn_not_formatted) - 5])
-                #     pgn_not_formatted += f' {str(next_move+1)}. {random_move}'
-            
-                # game = chess.pgn.read_game(io.StringIO(pgn_not_formatted))
-
-                # print(pgn_not_formatted)
 
 
             elif game['type'] == 'multiplayer':
@@ -232,6 +228,7 @@ async def createComputerGame(sid, data):
         'players': [data['username'], 'AI'],
         'pgn': '',
         'type': 'computer',
+        'ai': data['ai'],
         'status': 'starting'
     })
 
