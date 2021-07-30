@@ -240,7 +240,7 @@ async def createComputerGame(sid, data):
 
 
 def log():
-    os.system('cls||clear')
+    os.system('clear')
 
     print(f'Users connected: {tot_client}')
 
