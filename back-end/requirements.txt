@@ -12,9 +12,9 @@ eventlet
 greenlet
 idna
 idna-ssl
-mkl-fft==1.3.0
-mkl-random==1.0.4
-mkl-service==2.3.0
+mkl-fft
+mkl-random
+mkl-service
 multidict
 numpy
 pycparser
