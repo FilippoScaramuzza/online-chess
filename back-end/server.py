@@ -23,6 +23,8 @@ games = []
 rooms = []
 tot_client = 0
 
+engine = Engine()
+
 @sio.event
 def connect(sid, environ):
     global tot_client
@@ -58,6 +60,24 @@ async def fetch(sid, data):
                     if len(room['sids']) < 2 and room['sids'][0] != sid:
                         room['sids'].append(sid)
                         sio.enter_room(sid, data['id'])
+            
+            if game['type'] == 'computer' and game['players'][0] == game['ai']:
+                board = chess.Board()
+                if game['ai'] == 'random':
+                    move = engine.get_random_move(board)
+                elif game['ai'] == 'stockfish':
+                    move = engine.get_stockfish_best_move(board)
+                elif game['ai'] == 'minimax':
+                    move = str(engine.get_minimax_best_move(board))
+
+                move_from = move[:2]
+                move_to = str(move)[2:]
+
+                await sio.emit('moved', {'from': move_from, 'to': move_to}, room = data['id'])
+                board = chess.Board()
+                game['pgn'] = str(board.variation_san([chess.Move.from_uci(m) for m in [move]]))
+
+
             await sio.emit('fetch', {'game': game}, room=data['id'])
 
     log()
@@ -129,26 +149,25 @@ async def move(sid, data):  # id, from, to, pgn
                     log()
                     return
                 
-                engine = Engine(board)
-                
                 move = ''
 
                 if game['ai'] == 'random':
-                    move = engine.get_random_move()
+                    move = engine.get_random_move(board)
                 elif game['ai'] == 'stockfish':
-                    move = engine.get_stockfish_best_move()
+                    move = engine.get_stockfish_best_move(board)
+                elif game['ai'] == 'minimax':
+                    move = str(engine.get_minimax_best_move(board))
 
                 move_from = move[:2]
-                move_to = move[2:]
+                move_to = str(move)[2:]
+                if(len(move_to) > 2): # promotion
+                    move_to = move_to.rstrip(move_to[-1])
+
 
                 await sio.emit('moved', {'from': move_from, 'to': move_to}, room = data['id'])
 
                 chess_game.end().add_main_variation(chess.Move.from_uci(move))
                 game['pgn'] = str(chess_game.variations[0])
-
-                board = chess_game.board()
-                for move in chess_game.mainline_moves():
-                    board.push(move)
 
                 await sio.emit('fetch', {'game': game}, room = data['id'])
 
@@ -157,7 +176,7 @@ async def move(sid, data):  # id, from, to, pgn
                 await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
                 await sio.emit('fetch', {'game': game}, room = data['id'])
 
-    #log()
+    log()
 
 @sio.event
 async def resign(sid, data):
@@ -223,9 +242,12 @@ async def disconnect(sid):
 async def createComputerGame(sid, data):
     game_id = ''.join(random.choice(
         '0123456789abcdefghijklmnopqrstuvwxyz') for i in range(4))
+
+    players = [data['username'], data['ai']]
+    random.shuffle(players)
     games.append({
         'id': game_id,
-        'players': [data['username'], 'AI'],
+        'players': players,
         'pgn': '',
         'type': 'computer',
         'ai': data['ai'],

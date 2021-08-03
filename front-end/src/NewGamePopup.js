@@ -78,6 +78,16 @@ function NewGamePopup() {
 									onChange={() => setAi('stockfish')}
 								/>
 							</Form.Field>
+							<Form.Field>
+								<Checkbox
+									radio
+									label='Pure Minimax'
+									name='checkboxRadioGroup'
+									value='minimax'
+									checked={ai === 'minimax'}
+									onChange={() => setAi('minimax')}
+								/>
+							</Form.Field>
 						</Form.Group>
 					</Form>
 					<br />
