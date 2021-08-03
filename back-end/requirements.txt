@@ -12,8 +12,11 @@ eventlet
 greenlet
 idna
 idna-ssl
+mkl-fft==1.3.0
+mkl-random==1.0.4
+mkl-service==2.3.0
 multidict
-numpy==1.17.0
+numpy
 pycparser
 pyOpenSSL
 python-chess==0.31.4
