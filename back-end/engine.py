@@ -105,6 +105,12 @@ class Engine:
         '''
             Get pure minimax (no ml pre-filtering) best move
         '''
+
+        if board.turn == chess.WHITE:
+            is_ai_white = True
+        else:
+            is_ai_white = False
+
         for move in board.legal_moves:
             if(self.can_checkmate(move, board)): # first we check if there is an istant checkmate
                 return move
@@ -113,34 +119,114 @@ class Engine:
    
         # When there are too much moves, depth is decreased to avoid extreme slow down
         if(moves_num > 30):
-            return self.minimax_root(2, board, pure_minimax = True)
+            return self.minimax_starting_point(depth = 2, board = board, is_ai_white = is_ai_white, pure_minimax = True) # more than two is too low, moves are not accurate though
         elif(moves_num > 10 and moves_num <= 30):
-            return self.minimax_root(3, board, pure_minimax = True)
+            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = True)
         else:
-            return self.minimax_root(4, board, pure_minimax = True)
+            return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = True)
 
-    def square_to_coord(self, square):
+    def minimax_starting_point(self, depth, board, is_ai_white, pure_minimax = False, is_maximising_player = True):
         '''
-            Get square coordinates (from 0 to 7 both for rows and columns) from square.
-            Example: f3 -> (5, 2)
+            Starting point for minimax algorithm, the best move is returned.
+            This function is used both for pure minimax and minimax&MachineLearning
         '''
-        return {0:(7,0), 1:(7,1), 2:(7,2), 3:(7,3), 4:(7,4), 5:(7,5), 6:(7,6), 7:(7,7),
-          8:(6,0), 9:(6,1), 10:(6,2), 11:(6,3), 12:(6,4), 13:(6,5), 14:(6,6), 15:(6,7), 
-          16:(5,0), 17:(5,1), 18:(5,2), 19:(5,3), 20:(5,4), 21:(5,5), 22:(5,6), 23:(5,7),
-          24:(4,0), 25:(4,1), 26:(4,2), 27:(4,3), 28:(4,4), 29:(4,5), 30:(4,6), 31:(4,7),
-          32:(3,0), 33:(3,1), 34:(3,2), 35:(3,3), 36:(3,4), 37:(3,5), 38:(3,6), 39:(3,7),
-          40:(2,0), 41:(2,1), 42:(2,2), 43:(2,3), 44:(2,4), 45:(2,5), 46:(2,6), 47:(2,7),
-          48:(1,0), 49:(1,1), 50:(1,2), 51:(1,3), 52:(1,4), 53:(1,5), 54:(1,6), 55:(1,7),
-          56:(0,0), 57:(0,1), 58:(0,2), 59:(0,3), 60:(0,4), 61:(0,5), 62:(0,6), 63:(0,7)}[square]
 
+        if pure_minimax:
+            legal_moves = board.legal_moves
+        else:
+            # legal_moves = find_best_moves(board, model) TODO
+            legal_moves = board.legal_moves # questo va sostituito poi con quello sopra
+        evaluation = -999999
+        best_move_found = None
 
-    def get_piece_value(self, board, piece, square):
+        # Cycling the legal moves, finds the best one
+        for move in legal_moves:
+            board.push(move)
+            value = self.minimax(depth = depth - 1, 
+                                board = board, 
+                                is_ai_white = is_ai_white , 
+                                alpha = -10000, 
+                                beta = 10000, 
+                                pure_minimax = True, 
+                                is_maximising_player = not is_maximising_player)
+            board.pop()
+            if(value >= evaluation):
+                evaluation = value
+                best_move_found = move
+
+        return best_move_found
+    
+    def minimax(self, depth, board, is_ai_white, alpha, beta, pure_minimax, is_maximising_player):
+        
+        '''
+            Get the evaluation for a specific move. This is recursive.
+        '''
+
+        if(depth == 0):
+            # When minimax reaches depth 0, it returns the evaluation of the move.
+            return - self.evaluate_board(board, is_ai_white)
+        elif(depth > 3):
+            if pure_minimax:
+                legal_moves = board.legal_moves
+            else:
+                # legal_moves = find_best_moves(board, model, 0.75)
+                legal_moves = board.legal_moves # TODO questo va poi sostituito con sopra
+        else:
+            legal_moves = list(board.legal_moves)
+
+        if(is_maximising_player):
+            best_move = -9999
+            for move in legal_moves:
+                board.push(move)
+                best_move = max(best_move, self.minimax(depth = depth-1, 
+                                                        board = board, 
+                                                        is_ai_white = is_ai_white, 
+                                                        alpha = alpha, 
+                                                        beta = beta, 
+                                                        pure_minimax = pure_minimax, 
+                                                        is_maximising_player = not is_maximising_player))
+                board.pop()
+                alpha = max(alpha, best_move)
+                if(beta <= alpha):
+                    return best_move
+            return best_move
+        else:
+            best_move = 9999
+            for move in legal_moves:
+                board.push(move)
+                best_move = min(best_move, self.minimax(depth = depth-1, 
+                                                        board = board, 
+                                                        is_ai_white = is_ai_white, 
+                                                        alpha = alpha, 
+                                                        beta = beta, 
+                                                        pure_minimax = pure_minimax, 
+                                                        is_maximising_player = not is_maximising_player))
+                board.pop()
+                beta = min(beta, best_move)
+                if(beta <= alpha):
+                    return best_move
+            return best_move
+
+    def evaluate_board(self, board, is_ai_white):
+        '''
+            Get the evaluation for a specific board setup.
+            This is based on the pieces value their positions.
+        '''
+        evaluation = 0
+
+        for square in chess.SQUARES:
+            piece = str(board.piece_at(square))
+            evaluation = evaluation + self.get_piece_value(board, is_ai_white, piece, square)
+
+        return evaluation
+
+    def get_piece_value(self, board, is_ai_white, piece, square):
         '''
             Get the piece value, based on both its value and its position.
         '''
         x, y = self.square_to_coord(square)
   
-        if board.turn == chess.WHITE:
+        if is_ai_white:
             sign_white = -1
             sign_black = 1
         else:
@@ -174,68 +260,16 @@ class Engine:
         elif(piece == 'k'):
             return sign_black * (900 + king_black_eval[x][y])
 
-
-    def evaluate_board(self, board):
-        evaluation = 0
-        for square in chess.SQUARES:
-            piece = str(board.piece_at(square))
-            evaluation = evaluation + self.get_piece_value(board, piece, square)
-        return evaluation
-
-
-    def minimax(self, depth, board, alpha, beta, pure_minimax, is_maximising_player):
-  
-        if(depth == 0):
-            return - self.evaluate_board(board)
-        elif(depth > 3):
-            if pure_minimax:
-                legal_moves = board.legal_moves
-            else:
-                # legal_moves = find_best_moves(board, model, 0.75)
-                legal_moves = board.legal_moves # TODO questo va poi sostituito con sopra
-        else:
-            legal_moves = list(board.legal_moves)
-
-        if(is_maximising_player):
-            best_move = -9999
-            for move in legal_moves:
-                board.push(move)
-                best_move = max(best_move, self.minimax(depth-1, board, alpha, beta, pure_minimax = pure_minimax, is_maximising_player = not is_maximising_player))
-                board.pop()
-                alpha = max(alpha, best_move)
-                if(beta <= alpha):
-                    return best_move
-            return best_move
-        else:
-            best_move = 9999
-            for move in legal_moves:
-                board.push(move)
-                best_move = min(best_move, self.minimax(depth-1, board, alpha, beta, pure_minimax = pure_minimax, is_maximising_player = not is_maximising_player))
-                board.pop()
-                beta = min(beta, best_move)
-                if(beta <= alpha):
-                    return best_move
-            return best_move
-
-
-    def minimax_root(self, depth, board, pure_minimax = False, is_maximising_player = True):
-        # only search the top 50% moves
-        if pure_minimax:
-            legal_moves = board.legal_moves
-        else:
-            # legal_moves = find_best_moves(board, model) TODO
-            legal_moves = board.legal_moves # questo va sostituito poi con quello sopra
-        best_move = -9999
-        best_move_found = None
-
-        for move in legal_moves:
-            board.push(move)
-            value = self.minimax(depth - 1, board, -10000, 10000, True, not is_maximising_player)
-            board.pop()
-            if(value >= best_move):
-                best_move = value
-                best_move_found = move
-
-        return best_move_found
-    
-    
+    def square_to_coord(self, square):
+        '''
+            Get square coordinates (from 0 to 7 both for rows and columns) from square.
+            Example: f3 -> (5, 2)
+        '''
+        return {0:(7,0), 1:(7,1), 2:(7,2), 3:(7,3), 4:(7,4), 5:(7,5), 6:(7,6), 7:(7,7),
+          8:(6,0), 9:(6,1), 10:(6,2), 11:(6,3), 12:(6,4), 13:(6,5), 14:(6,6), 15:(6,7), 
+          16:(5,0), 17:(5,1), 18:(5,2), 19:(5,3), 20:(5,4), 21:(5,5), 22:(5,6), 23:(5,7),
+          24:(4,0), 25:(4,1), 26:(4,2), 27:(4,3), 28:(4,4), 29:(4,5), 30:(4,6), 31:(4,7),
+          32:(3,0), 33:(3,1), 34:(3,2), 35:(3,3), 36:(3,4), 37:(3,5), 38:(3,6), 39:(3,7),
+          40:(2,0), 41:(2,1), 42:(2,2), 43:(2,3), 44:(2,4), 45:(2,5), 46:(2,6), 47:(2,7),
+          48:(1,0), 49:(1,1), 50:(1,2), 51:(1,3), 52:(1,4), 53:(1,5), 54:(1,6), 55:(1,7),
+          56:(0,0), 57:(0,1), 58:(0,2), 59:(0,3), 60:(0,4), 61:(0,5), 62:(0,6), 63:(0,7)}[square]
