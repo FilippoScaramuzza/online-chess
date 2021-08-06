@@ -5,6 +5,7 @@ import io
 import random
 from sys import platform
 import numpy as np
+import pickle
 
 pawn_white_eval = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                             [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
@@ -87,6 +88,9 @@ class Engine:
         elif platform == 'darwin':
             self.stockfish = Stockfish()
 
+        with open('./trained_model/dumped_clf.pkl', 'rb') as fid:
+            self.classifier = pickle.load(fid)
+
     def get_stockfish_best_move(self, board):
         self.stockfish.set_fen_position(board.fen())
         return self.stockfish.get_best_move()
@@ -124,6 +128,69 @@ class Engine:
             return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = True)
         else:
             return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = True)
+    
+    def get_minimax_ml_best_move(self, board):
+        
+
+        if board.turn == chess.WHITE:
+            is_ai_white = True
+        else:
+            is_ai_white = False
+
+        for move in board.legal_moves:
+            if(self.can_checkmate(move, board)): # first we check if there is an istant checkmate
+                return move
+
+        moves_num = len(list(board.legal_moves))
+
+        # When there are too much moves, depth is decreased to avoid extreme slow down
+        if(moves_num > 30):
+            return self.minimax_starting_point(depth = 2, board = board, is_ai_white = is_ai_white, pure_minimax = False) # more than two is too low, moves are not accurate though
+        elif(moves_num > 10 and moves_num <= 30):
+            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+        else:
+            return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+
+
+    def get_board_features(self, board):
+        board_features = []
+        for square in chess.SQUARES:
+            # R N B K Q P r n b k q p
+            piece = {'None': 0, 'R': 1, 'N': 2, 'B': 3, 'K': 4, 'Q': 5, 'P': 6, 'r': 7, 'n': 8, 'b': 9, 'k': 10, 'q': 11, 'p': 12}[str(board.piece_at(square))]
+            board_features.append(piece)
+        
+        return board_features
+
+    def get_move_features(self, move):
+        from_ = np.zeros(64)
+        to_ = np.zeros(64)
+        from_[move.from_square] = 1
+        to_[move.to_square] = 1
+        return from_, to_
+
+    def filter_good_moves(self, board, proportion = 0.75):
+
+        moves = []
+        good_moves = []
+        for move in list(board.legal_moves):
+            board_features = self.get_board_features(board)
+            from_square, to_square = self.get_move_features(move)
+            line = np.concatenate((board_features, from_square, to_square))
+
+            move_translated = np.array(["%.1f" % number for number in line])
+            good_move_prob = self.classifier.predict_proba(move_translated.reshape(1, -1))[0][1]
+            if good_move_prob > 0.4:
+                good_moves.append(move)
+            moves.append([move, good_move_prob])
+            #print(move, self.classifier.predict(move_translated.reshape(1, -1)), self.classifier.predict_proba(move_translated.reshape(1, -1)))
+        moves = sorted(moves, key=lambda k: k[1], reverse = True) 
+        moves = [move[0] for move in moves]
+
+        if len(good_moves) == 0:
+            print('AAAAA')
+            return moves[:3]
+        
+        return good_moves
 
     def minimax_starting_point(self, depth, board, is_ai_white, pure_minimax = False, is_maximising_player = True):
         '''
@@ -134,8 +201,10 @@ class Engine:
         if pure_minimax:
             legal_moves = board.legal_moves
         else:
-            # legal_moves = find_best_moves(board, model) TODO
-            legal_moves = board.legal_moves # questo va sostituito poi con quello sopra
+            legal_moves = self.filter_good_moves(board)
+            if(len(legal_moves) == 0):
+                legal_moves = board.legal_moves
+
         evaluation = -999999
         best_move_found = None
 
@@ -169,7 +238,7 @@ class Engine:
             if pure_minimax:
                 legal_moves = board.legal_moves
             else:
-                # legal_moves = find_best_moves(board, model, 0.75)
+                legal_moves = filter_good_moves(board)
                 legal_moves = board.legal_moves # TODO questo va poi sostituito con sopra
         else:
             legal_moves = list(board.legal_moves)

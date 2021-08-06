@@ -69,6 +69,8 @@ async def fetch(sid, data):
                     move = engine.get_stockfish_best_move(board)
                 elif game['ai'] == 'minimax':
                     move = str(engine.get_minimax_best_move(board))
+                elif game['ai'] == 'ml':
+                    move = str(engine.get_minimax_ml_best_move(board))
 
                 move_from = move[:2]
                 move_to = str(move)[2:]
@@ -80,7 +82,7 @@ async def fetch(sid, data):
 
             await sio.emit('fetch', {'game': game}, room=data['id'])
 
-    log()
+    #log()
 
 @sio.event
 async def join(sid, data):
@@ -157,6 +159,8 @@ async def move(sid, data):  # id, from, to, pgn
                     move = engine.get_stockfish_best_move(board)
                 elif game['ai'] == 'minimax':
                     move = str(engine.get_minimax_best_move(board))
+                elif game['ai'] == 'ml':
+                    move = str(engine.get_minimax_ml_best_move(board))
 
                 move_from = move[:2]
                 move_to = str(move)[2:]
@@ -176,7 +180,7 @@ async def move(sid, data):  # id, from, to, pgn
                 await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
                 await sio.emit('fetch', {'game': game}, room = data['id'])
 
-    log()
+    #log()
 
 @sio.event
 async def resign(sid, data):
