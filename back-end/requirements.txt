@@ -34,13 +34,10 @@ jupyter-core
 Keras-Applications
 Keras-Preprocessing
 Markdown
-mkl-fft==1.3.0
-mkl-random==1.0.4
-mkl-service==2.3.0
 multidict
-numpy==1.17.0
+numpy
 opt-einsum
-pandas==1.1.5
+pandas
 parso
 pexpect
 pickleshare
