@@ -125,9 +125,9 @@ class Engine:
         if(moves_num > 30):
             return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = True) # more than two is too low, moves are not accurate though
         elif(moves_num > 10 and moves_num <= 30):
-            return self.minimax_starting_point(depth = 5, board = board, is_ai_white = is_ai_white, pure_minimax = True)
+            return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = True)
         else:
-            return self.minimax_starting_point(depth = 7, board = board, is_ai_white = is_ai_white, pure_minimax = True)
+            return self.minimax_starting_point(depth = 5, board = board, is_ai_white = is_ai_white, pure_minimax = True)
     
     def get_minimax_ml_best_move(self, board):
         
@@ -144,12 +144,8 @@ class Engine:
         moves_num = len(list(board.legal_moves))
 
         # When there are too much moves, depth is decreased to avoid extreme slow down
-        if(moves_num > 30):
-            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = False) # more than two is too low, moves are not accurate though
-        elif(moves_num > 10 and moves_num <= 30):
-            return self.minimax_starting_point(depth = 5, board = board, is_ai_white = is_ai_white, pure_minimax = False)
-        else:
-            return self.minimax_starting_point(depth = 7, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+        
+        return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = False)
 
 
     def get_board_features(self, board):
@@ -187,8 +183,7 @@ class Engine:
         moves = [move[0] for move in moves]
 
         if len(good_moves) == 0:
-            print('AAAAA')
-            return moves[:3]
+            return moves[:int(len(moves) * 0.25)]
         
         return good_moves
 
@@ -199,7 +194,7 @@ class Engine:
         '''
 
         if pure_minimax:
-            legal_moves = board.legal_moves
+            legal_moves = list(board.legal_moves)
         else:
             legal_moves = self.filter_good_moves(board)
             if(len(legal_moves) == 0):
@@ -207,10 +202,17 @@ class Engine:
 
         evaluation = -999999
         best_move_found = None
+        print("Filtered good moves: ")
+        for move in legal_moves:
+            print(move)
+        
+        if len(legal_moves) == 1:
+            return legal_moves[0]
 
         # Cycling the legal moves, finds the best one
         for move in legal_moves:
             board.push(move)
+            print('minimax for move' + str(move))
             value = self.minimax(depth = depth - 1, 
                                 board = board, 
                                 is_ai_white = is_ai_white , 
@@ -234,14 +236,11 @@ class Engine:
         if(depth == 0):
             # When minimax reaches depth 0, it returns the evaluation of the move.
             return - self.evaluate_board(board, is_ai_white)
-        elif(depth > 3):
-            if pure_minimax:
-                legal_moves = board.legal_moves
-            else:
-                legal_moves = filter_good_moves(board)
-                legal_moves = board.legal_moves # TODO questo va poi sostituito con sopra
         else:
-            legal_moves = list(board.legal_moves)
+            if pure_minimax:
+                legal_moves = list(board.legal_moves)
+            else:
+                legal_moves = self.filter_good_moves(board)
 
         if(is_maximising_player):
             best_move = -9999
