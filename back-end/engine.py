@@ -123,11 +123,11 @@ class Engine:
    
         # When there are too much moves, depth is decreased to avoid extreme slow down
         if(moves_num > 30):
-            return self.minimax_starting_point(depth = 2, board = board, is_ai_white = is_ai_white, pure_minimax = True) # more than two is too low, moves are not accurate though
+            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = True) # more than two is too low, moves are not accurate though
         elif(moves_num > 10 and moves_num <= 30):
-            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = True)
+            return self.minimax_starting_point(depth = 5, board = board, is_ai_white = is_ai_white, pure_minimax = True)
         else:
-            return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = True)
+            return self.minimax_starting_point(depth = 7, board = board, is_ai_white = is_ai_white, pure_minimax = True)
     
     def get_minimax_ml_best_move(self, board):
         
@@ -145,11 +145,11 @@ class Engine:
 
         # When there are too much moves, depth is decreased to avoid extreme slow down
         if(moves_num > 30):
-            return self.minimax_starting_point(depth = 2, board = board, is_ai_white = is_ai_white, pure_minimax = False) # more than two is too low, moves are not accurate though
+            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = False) # more than two is too low, moves are not accurate though
         elif(moves_num > 10 and moves_num <= 30):
-            return self.minimax_starting_point(depth = 3, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+            return self.minimax_starting_point(depth = 5, board = board, is_ai_white = is_ai_white, pure_minimax = False)
         else:
-            return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+            return self.minimax_starting_point(depth = 7, board = board, is_ai_white = is_ai_white, pure_minimax = False)
 
 
     def get_board_features(self, board):
