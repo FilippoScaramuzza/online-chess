@@ -174,7 +174,7 @@ class Engine:
             line = np.concatenate((board_features, from_square, to_square))
 
             move_translated = np.array(["%.1f" % number for number in line])
-            good_move_prob = self.classifier.predict_proba(move_translated.reshape(1, -1))[0][1]
+            good_move_prob = self.classifier.predict_proba(move_translated.astype(np.float64).reshape(1, -1))[0][1]
             if good_move_prob > 0.4:
                 good_moves.append(move)
             moves.append([move, good_move_prob])
@@ -198,7 +198,7 @@ class Engine:
         else:
             legal_moves = self.filter_good_moves(board)
             if(len(legal_moves) == 0):
-                legal_moves = board.legal_moves
+                legal_moves = list(board.legal_moves)
 
         evaluation = -999999
         best_move_found = None
