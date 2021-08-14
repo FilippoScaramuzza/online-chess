@@ -212,7 +212,6 @@ class Engine:
         # Cycling the legal moves, finds the best one
         for move in legal_moves:
             board.push(move)
-            print('minimax for move' + str(move))
             value = self.minimax(depth = depth - 1, 
                                 board = board, 
                                 is_ai_white = is_ai_white , 
@@ -220,6 +219,7 @@ class Engine:
                                 beta = 10000, 
                                 pure_minimax = True, 
                                 is_maximising_player = not is_maximising_player)
+            print('minimax for move ' + str(move) + ": " + str(value))
             board.pop()
             if(value >= evaluation):
                 evaluation = value
