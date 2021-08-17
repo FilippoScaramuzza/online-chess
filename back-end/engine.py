@@ -140,12 +140,8 @@ class Engine:
         for move in board.legal_moves:
             if(self.can_checkmate(move, board)): # first we check if there is an istant checkmate
                 return move
-
-        moves_num = len(list(board.legal_moves))
-
-        # When there are too much moves, depth is decreased to avoid extreme slow down
         
-        return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+        return self.minimax_starting_point(depth = 8, board = board, is_ai_white = is_ai_white, pure_minimax = False)
 
 
     def get_board_features(self, board):
@@ -176,23 +172,33 @@ class Engine:
             move_translated = np.array(["%.1f" % number for number in line])
             good_move_prob = self.classifier.predict_proba(move_translated.astype(np.float64).reshape(1, -1))[0][1]
             if good_move_prob > 0.4:
-                good_moves.append(move)
+                good_moves.append([move, good_move_prob])
             moves.append([move, good_move_prob])
             #print(move, self.classifier.predict(move_translated.reshape(1, -1)), self.classifier.predict_proba(move_translated.reshape(1, -1)))
         moves = sorted(moves, key=lambda k: k[1], reverse = True) 
-        moves = [move[0] for move in moves]
 
         if len(good_moves) == 0:
+            print("No good moves found")
+            for move in moves[:int(len(moves) * 0.25)]:
+                print(f'Move: {str(move[0])} | Prob: {move[1]}')
+
+            moves = [move[0] for move in moves]
             return moves[:int(len(moves) * 0.25)]
-        
-        return good_moves
+
+        print(f"{len(good_moves)} good moves found")
+        for move in good_moves:
+                print(f'Move: {str(move[0])} | Prob: {move[1]}')
+
+        good_moves = [move[0] for move in good_moves]
+        return good_moves[:int(len(good_moves) * 0.25)]
 
     def minimax_starting_point(self, depth, board, is_ai_white, pure_minimax = False, is_maximising_player = True):
         '''
             Starting point for minimax algorithm, the best move is returned.
             This function is used both for pure minimax and minimax&MachineLearning
         '''
-
+        
+        moves_num = len(list(board.legal_moves))
         if pure_minimax:
             legal_moves = list(board.legal_moves)
         else:
@@ -202,9 +208,7 @@ class Engine:
 
         evaluation = -999999
         best_move_found = None
-        print("Filtered good moves: ")
-        for move in legal_moves:
-            print(move)
+        print(f"Filtered good moves {len(legal_moves)}/{moves_num}: ")
         
         if len(legal_moves) == 1:
             return legal_moves[0]
@@ -219,12 +223,13 @@ class Engine:
                                 beta = 10000, 
                                 pure_minimax = True, 
                                 is_maximising_player = not is_maximising_player)
-            print('minimax for move ' + str(move) + ": " + str(value))
+            print(f'Minimax (depth: {depth}) for move {str(move)}: {str(value)}')
             board.pop()
             if(value >= evaluation):
                 evaluation = value
                 best_move_found = move
 
+        print(f"Best move found: {str(best_move_found)}\n")
         return best_move_found
     
     def minimax(self, depth, board, is_ai_white, alpha, beta, pure_minimax, is_maximising_player):
