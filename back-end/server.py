@@ -8,6 +8,7 @@ import json
 import chess
 import chess.pgn
 from engine import Engine
+import time
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
@@ -29,6 +30,13 @@ engine = Engine()
 def connect(sid, environ):
     global tot_client
 
+    for room in rooms:
+        if len(room['sids']) == 0 and time.time() - room['last_seen'] > 5.0:
+            for game in games:
+                if game['id'] == room['id']:
+                    games.remove(game)
+            rooms.remove(room)
+
     tot_client += 1
     log()
 
@@ -45,11 +53,10 @@ async def create(sid, data):
     })
 
     sio.enter_room(sid, game_id)
-    rooms.append({'id': game_id, 'sids': [sid]})
+    rooms.append({'id': game_id, 'sids': [sid], 'last_seen': time.time()})
     await sio.emit('created', {'game': games[len(games)-1]})
 
     log()
-
 
 @sio.event
 async def fetch(sid, data):
@@ -57,11 +64,18 @@ async def fetch(sid, data):
         if game['id'] == data['id']:
             for room in rooms:
                 if room['id'] == data['id']:
+                    # (NOTE) aggiunto mo'
+                    if sid not in room['sids']:
+                        room['sids'].append(sid)
+                        sio.enter_room(sid, data['id'])
+
+                    print(room['sids'])
+
                     if len(room['sids']) < 2 and room['sids'][0] != sid:
                         room['sids'].append(sid)
                         sio.enter_room(sid, data['id'])
             
-            if game['type'] == 'computer' and game['players'][0] == game['ai']:
+            if game['status'] == 'starting' and game['type'] == 'computer' and game['players'][0] == game['ai']:
                 board = chess.Board()
                 if game['ai'] == 'random':
                     move = engine.get_random_move(board)
@@ -79,10 +93,10 @@ async def fetch(sid, data):
                 board = chess.Board()
                 game['pgn'] = str(board.variation_san([chess.Move.from_uci(m) for m in [move]]))
 
-
+            game['status'] = 'ongoing'
             await sio.emit('fetch', {'game': game}, room=data['id'])
 
-    #log()
+    log()
 
 @sio.event
 async def join(sid, data):
@@ -180,7 +194,7 @@ async def move(sid, data):  # id, from, to, pgn
                 await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
                 await sio.emit('fetch', {'game': game}, room = data['id'])
 
-    #log()
+    log()
 
 @sio.event
 async def resign(sid, data):
@@ -231,13 +245,16 @@ async def disconnect(sid):
         if sid in room['sids']:
             await sio.emit('disconnected', room=room['id'])
             room['sids'].remove(sid)
+            room['last_seen'] = time.time()
 
-        if len(room['sids']) == 0:
-            for game in games:
-                if game['id'] == room['id']:
-                    games.remove(game)
-
-            rooms.remove(room)
+        # if len(room['sids']) == 0:
+        #     for game in games:
+        #         if game['id'] == room['id']:
+        #             if game['type'] != 'computer':
+        #                 games.remove(game)
+            
+        #     if game['type'] != 'computer':
+        #         rooms.remove(room)
 
     log()
 
@@ -259,7 +276,7 @@ async def createComputerGame(sid, data):
     })
 
     sio.enter_room(sid, game_id)
-    rooms.append({'id': game_id, 'sids': [sid]})
+    rooms.append({'id': game_id, 'sids': [sid], 'last_seen': time.time()})
     await sio.emit('createdComputerGame', {'game': games[len(games)-1]})
 
     log()
@@ -274,9 +291,9 @@ def log():
 
     print(json.dumps(games, indent=2))
 
-    # print(f'ROOMS: ')
+    print(f'ROOMS: ')
 
-    # print(json.dumps(rooms, indent=2))
+    print(json.dumps(rooms, indent=2))
 
 if __name__ == '__main__':
     log()

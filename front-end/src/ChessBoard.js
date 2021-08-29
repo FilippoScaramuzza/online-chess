@@ -31,6 +31,8 @@ function ChessBoard() {
 
 		socket.emit("fetch", { id: locState.game.id })
 		socket.on("fetch", ({ game }) => {
+			console.log("RICEVUTO FETCH")
+			
 			setGame(game)
 			setDisconnected(false)
 			if (locState.username === game.players[0]) {
