@@ -141,7 +141,7 @@ class Engine:
             if(self.can_checkmate(move, board)): # first we check if there is an istant checkmate
                 return move
         
-        return self.minimax_starting_point(depth = 8, board = board, is_ai_white = is_ai_white, pure_minimax = False)
+        return self.minimax_starting_point(depth = 4, board = board, is_ai_white = is_ai_white, pure_minimax = False)
 
 
     def get_board_features(self, board):
