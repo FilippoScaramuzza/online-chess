@@ -31,14 +31,14 @@ def connect(sid, environ):
     global tot_client
 
     for room in rooms:
-        if len(room['sids']) == 0 and time.time() - room['last_seen'] > 5.0:
+        if len(room['sids']) == 0 and time.time() - room['last_seen'] > 30.0:
             for game in games:
                 if game['id'] == room['id']:
                     games.remove(game)
             rooms.remove(room)
 
     tot_client += 1
-    log()
+    #log()
 
 @sio.event
 async def create(sid, data):
@@ -56,7 +56,7 @@ async def create(sid, data):
     rooms.append({'id': game_id, 'sids': [sid], 'last_seen': time.time()})
     await sio.emit('created', {'game': games[len(games)-1]})
 
-    log()
+    #log()
 
 @sio.event
 async def fetch(sid, data):
@@ -82,9 +82,9 @@ async def fetch(sid, data):
                 elif game['ai'] == 'stockfish':
                     move = engine.get_stockfish_best_move(board)
                 elif game['ai'] == 'minimax':
-                    move = str(engine.get_minimax_best_move(board))
+                    move = str(engine.get_minimax_best_move(board, False))
                 elif game['ai'] == 'ml':
-                    move = str(engine.get_minimax_ml_best_move(board))
+                    move = str(engine.get_minimax_best_move(board, True))
 
                 move_from = move[:2]
                 move_to = str(move)[2:]
@@ -96,7 +96,7 @@ async def fetch(sid, data):
             game['status'] = 'ongoing'
             await sio.emit('fetch', {'game': game}, room=data['id'])
 
-    log()
+    #log()
 
 @sio.event
 async def join(sid, data):
@@ -123,7 +123,7 @@ async def join(sid, data):
     if username_already_in_use:
         await sio.emit('usernamealreadyinuse')
 
-    log()
+    #log()
 
 @sio.event
 async def move(sid, data):  # id, from, to, pgn
@@ -149,7 +149,7 @@ async def move(sid, data):  # id, from, to, pgn
                     if index > -1:
                         games.pop(index)
 
-                    log()
+                    #log()
                     return
                 
                 if board.is_stalemate() or board.is_fivefold_repetition() or board.is_insufficient_material():
@@ -162,7 +162,7 @@ async def move(sid, data):  # id, from, to, pgn
                     if index > -1:
                         games.pop(index)
                     
-                    log()
+                    #log()
                     return
                 
                 move = ''
@@ -172,9 +172,9 @@ async def move(sid, data):  # id, from, to, pgn
                 elif game['ai'] == 'stockfish':
                     move = engine.get_stockfish_best_move(board)
                 elif game['ai'] == 'minimax':
-                    move = str(engine.get_minimax_best_move(board))
+                    move = str(engine.get_minimax_best_move(board, False))
                 elif game['ai'] == 'ml':
-                    move = str(engine.get_minimax_ml_best_move(board))
+                    move = str(engine.get_minimax_best_move(board, True))
 
                 move_from = move[:2]
                 move_to = str(move)[2:]
@@ -194,7 +194,7 @@ async def move(sid, data):  # id, from, to, pgn
                 await sio.emit('moved', {'from': data['from'],'to': data['to'] }, room = data['id'], skip_sid=sid)
                 await sio.emit('fetch', {'game': game}, room = data['id'])
 
-    log()
+    #log()
 
 @sio.event
 async def resign(sid, data):
@@ -207,7 +207,7 @@ async def resign(sid, data):
     if index > -1:
         games.pop(index)
     
-    log()
+    #log()
 
 @sio.event
 async def checkmate(sid, data):
@@ -220,7 +220,7 @@ async def checkmate(sid, data):
     if index > -1:
         games.pop(index)
     
-    log()
+    #log()
 
 @sio.event
 async def draw(sid, data):
@@ -233,7 +233,7 @@ async def draw(sid, data):
     if index > -1:
         games.pop(index)
     
-    log()
+    #log()
 
 @sio.event
 async def disconnect(sid):
@@ -256,7 +256,7 @@ async def disconnect(sid):
         #     if game['type'] != 'computer':
         #         rooms.remove(room)
 
-    log()
+    #log()
 
 
 @sio.event
@@ -265,7 +265,7 @@ async def createComputerGame(sid, data):
         '0123456789abcdefghijklmnopqrstuvwxyz') for i in range(4))
 
     players = [data['username'], data['ai']]
-    random.shuffle(players)
+    #random.shuffle(players)
     games.append({
         'id': game_id,
         'players': players,
@@ -279,7 +279,7 @@ async def createComputerGame(sid, data):
     rooms.append({'id': game_id, 'sids': [sid], 'last_seen': time.time()})
     await sio.emit('createdComputerGame', {'game': games[len(games)-1]})
 
-    log()
+    #log()
 
 
 def log():
@@ -296,6 +296,6 @@ def log():
     print(json.dumps(rooms, indent=2))
 
 if __name__ == '__main__':
-    log()
+    #log()
     port = int(os.environ.get('PORT', 8080))
     web.run_app(app, port = port)
