@@ -11,7 +11,7 @@ def filter_good_moves(board, classifier, first_print):
 
         move_translated = np.array(["%.1f" % number for number in line])
         good_move_prob = classifier.predict_proba(move_translated.astype(np.float64).reshape(1, -1))[0][1]
-        if good_move_prob > 0.5:
+        if good_move_prob > 0.35:
             good_moves.append([move, good_move_prob])
         moves.append([move, good_move_prob])
         #print(move, self.classifier.predict(move_translated.reshape(1, -1)), self.classifier.predict_proba(move_translated.reshape(1, -1)))

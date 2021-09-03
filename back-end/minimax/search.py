@@ -7,8 +7,8 @@ from ml.filter import filter_good_moves
 
 def search(depth, alpha, beta, board, is_ai_white, with_ml, classifier):
     if depth == 0:
-        
         return evaluate.evaluate(board, is_ai_white)
+        #return quiescence(alpha, beta, board, is_ai_white, with_ml, classifier)
 
     #moves = ordermoves.order_moves(board)
     if with_ml:
@@ -34,6 +34,30 @@ def search(depth, alpha, beta, board, is_ai_white, with_ml, classifier):
 
     return alpha
 
+    
+def quiescence(alpha, beta, board, is_ai_white, with_ml, classifier):
+    stand_pat = evaluate.evaluate(board, is_ai_white)
+    if (stand_pat >= beta):
+        return beta
+    if (alpha < stand_pat):
+        alpha = stand_pat
+
+    if not with_ml:
+        moves = filter_good_moves(board=board, classifier=classifier, first_print=False)
+    else:
+        moves = list(board.legal_moves)
+
+    for move in moves:
+        if board.is_capture(move):
+            board.push(move)
+            score = -quiescence(-beta, -alpha, board, is_ai_white, with_ml, classifier)
+            board.pop()
+
+            if (score >= beta):
+                return beta
+            if (score > alpha):
+                alpha = score
+    return alpha
 # def search(depth, alpha, beta, board, is_ai_white, is_maximizing_player):
 #     '''
 #         Get the evaluation for a specific move. This is recursive.

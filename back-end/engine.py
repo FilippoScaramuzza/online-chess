@@ -65,9 +65,12 @@ class Engine:
         else:
             moves = list(board.legal_moves)
 
+        if len(moves) == 1: 
+            return str(moves[0])
+
         for move in moves:
             board.push(move)
-            value = search(depth=5, alpha=-999999, beta=999999, board=board, is_ai_white=is_ai_white, with_ml=True, classifier=self.classifier)
+            value = search(depth=6 if len(moves) <= 5 else 3, alpha=-999999, beta=999999, board=board, is_ai_white=is_ai_white, with_ml=with_ml, classifier=self.classifier)
             print(f'Minimax for move {str(move)}: {str(value)}')
             board.pop()
             if(value >= evaluation):
