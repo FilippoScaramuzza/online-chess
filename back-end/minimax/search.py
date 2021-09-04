@@ -7,7 +7,7 @@ from ml.filter import filter_good_moves
 
 def search(depth, alpha, beta, board, is_ai_white, with_ml, classifier):
     if depth == 0:
-        return evaluate.evaluate(board, is_ai_white)
+        return quiescence(alpha, beta, board, with_ml, classifier)
         #return quiescence(alpha, beta, board, is_ai_white, with_ml, classifier)
 
     #moves = ordermoves.order_moves(board)
@@ -35,8 +35,8 @@ def search(depth, alpha, beta, board, is_ai_white, with_ml, classifier):
     return alpha
 
     
-def quiescence(alpha, beta, board, is_ai_white, with_ml, classifier):
-    stand_pat = evaluate.evaluate(board, is_ai_white)
+def quiescence(alpha, beta, board, with_ml, classifier):
+    stand_pat = evaluate.evaluate(board)
     if (stand_pat >= beta):
         return beta
     if (alpha < stand_pat):
@@ -50,7 +50,7 @@ def quiescence(alpha, beta, board, is_ai_white, with_ml, classifier):
     for move in moves:
         if board.is_capture(move):
             board.push(move)
-            score = -quiescence(-beta, -alpha, board, is_ai_white, with_ml, classifier)
+            score = -quiescence(-beta, -alpha, board, with_ml, classifier)
             board.pop()
 
             if (score >= beta):

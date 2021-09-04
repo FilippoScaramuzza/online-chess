@@ -16,8 +16,8 @@ function ChessBoard() {
 	const [disconnected, setDisconnected] = useState(false)
 	const [resigned, setResigned] = useState(false)
 	const [opponentResigned, setOpponentResigned] = useState(false)
-	const [pieces, setPieces] = useState("ocean")
-	const [board, setBoard] = useState("wood4.jpg")
+	const [pieces, setPieces] = useState("neo")
+	const [board, setBoard] = useState("green.svg")
 
 	const boardsContainer = {
 		display: "flex",
