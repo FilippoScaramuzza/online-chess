@@ -10,6 +10,7 @@ import chess.pgn
 from engine import Engine
 import time
 from multiprocessing.pool import ThreadPool
+from threading import Thread
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
@@ -302,4 +303,6 @@ def log():
 if __name__ == '__main__':
     #log()
     port = int(os.environ.get('PORT', 8080))
-    web.run_app(app, port = port)
+    t = Thread(web.run_app(app, port=port))
+    t.start()
+    # pool.apply_async(web.run_app, (app, port))
