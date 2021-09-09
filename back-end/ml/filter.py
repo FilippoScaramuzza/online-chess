@@ -27,7 +27,7 @@ def filter_good_moves(board, classifier, first_print):
 
     if len(good_moves) == 0:
         moves = [move[0] for move in moves]
-        return moves if int(len(moves)) <= 5 else moves[:int(len(moves) * 0.25)]
+        return moves if int(len(moves)) <= 5 else moves[:5]
 
     good_moves = [move[0] for move in good_moves]
     return good_moves if int(len(good_moves) * 0.25) <= 5 else good_moves[:int(len(good_moves) * 0.25)]
