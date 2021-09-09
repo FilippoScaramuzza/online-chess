@@ -93,13 +93,13 @@ def main():
 
     folders = list(os.walk(PLAYERS_FOLDER))
     players_folder = folders[0][1] # Getting players folders: ['Botvinnik', 'Caruana', 'Fischer', 'Anand', 'Alekhine', 'Tal', 'Polgar', 'Morphy', 'Carlsen', 'Capablanca', 'Nakamura', 'Kasparov']
-    for games_pgn in os.walk(PLAYERS_FOLDER + 'Capablanca'):
-        for game in games_pgn[2]:
-            rewrite_game(PLAYERS_FOLDER + 'Capablanca' + '/' + game, 'Capablanca')
-    # for player in players_folder[:int(len(players_folder) * 0.5)]:
-    #     for games_pgn in os.walk(PLAYERS_FOLDER + player):
-    #         for game in games_pgn[2]:
-    #             rewrite_game(PLAYERS_FOLDER + player + '/' + game, player)
+    # for games_pgn in os.walk(PLAYERS_FOLDER + 'Capablanca'):
+    #     for game in games_pgn[2]:
+    #         rewrite_game(PLAYERS_FOLDER + 'Capablanca' + '/' + game, 'Capablanca')
+    for player in players_folder[:int(len(players_folder) * 0.5)]:
+        for games_pgn in os.walk(PLAYERS_FOLDER + player):
+            for game in games_pgn[2]:
+                rewrite_game(PLAYERS_FOLDER + player + '/' + game, player)
 
 if __name__ == '__main__':
     main()

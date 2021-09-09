@@ -9,6 +9,7 @@ import chess
 import chess.pgn
 from engine import Engine
 import time
+from multiprocessing.pool import ThreadPool
 
 sio = socketio.AsyncServer(cors_allowed_origins='*')
 app = web.Application()
@@ -25,6 +26,8 @@ rooms = []
 tot_client = 0
 
 engine = Engine()
+
+pool = ThreadPool(processes=10)
 
 @sio.event
 def connect(sid, environ):
@@ -174,7 +177,8 @@ async def move(sid, data):  # id, from, to, pgn
                 elif game['ai'] == 'minimax':
                     move = str(engine.get_minimax_best_move(board, False))
                 elif game['ai'] == 'ml':
-                    move = str(engine.get_minimax_best_move(board, True))
+                    async_result = pool.apply_async(engine.get_minimax_best_move, (board, True))
+                    move = str(async_result.get())
 
                 move_from = move[:2]
                 move_to = str(move)[2:]
