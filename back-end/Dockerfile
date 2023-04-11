@@ -1,5 +1,5 @@
 # Use the official Python image as the base image
-FROM python:3.8-slim-buster AS base
+FROM python:3.8
 
 # Set the working directory in the container
 WORKDIR /app
@@ -11,4 +11,4 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # Define the entry point for the container
-CMD ["python server.py"]
+CMD ["python", "server.py"]
