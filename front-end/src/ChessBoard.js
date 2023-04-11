@@ -121,6 +121,12 @@ function ChessBoard() {
 						<Icon name='flag' />
 					</Button.Content>
 				</Button><br />
+				<Button animated='vertical' className='resign' style={{ marginLeft: "20px" }} onClick={() => socket.emit("fetch", { id: locState.game.id })}>
+					<Button.Content hidden>Fetch</Button.Content>
+					<Button.Content visible>
+						<Icon name='refresh' />
+					</Button.Content>
+				</Button><br />
 				{/* <span>{game.pgn}</span> */}
 				<div className="moves-div">
 					<br />
