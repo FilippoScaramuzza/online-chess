@@ -7,7 +7,7 @@ import ChessBoard from './ChessBoard'
 
 function App() {
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       <div className="main ui">
         <Route path="/game">
           <Header as='h2' inverted style={{ display: "flex", justifyContent: "center", paddingTop: "10px" }} textAlign="left">

@@ -236,8 +236,8 @@ class HumanVsHuman extends Component {
     pieces.map((p) => {
       returnPieces[p] = ({ squareWidth, isDragging }) => (
         <img style={{ width: squareWidth, height: squareWidth, cursor: isDragging ? "-webkit-grabbing" : "-webkit-grab", pointerEvents: "auto!important" }}
-          src={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
-          key={`/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          src={`${process.env.PUBLIC_URL}/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
+          key={`${process.env.PUBLIC_URL}/chess-themes/pieces/${theme}/${p.toLowerCase()}.png`}
           alt={p.toLowerCase()}
 
         />
@@ -301,7 +301,7 @@ export default function WithMoveValidation(props) {
             boardStyle={{
               borderRadius: '5px',
               boxShadow: `0 5px 20px rgba(0, 0, 0, 0.5)`,
-              backgroundImage: "url(/chess-themes/board/" + props.board + ")",
+              backgroundImage: `url(${process.env.PUBLIC_URL}/chess-themes/board/` + props.board + ")",
               backgroundSize: "cover"
             }}
             squareStyles={squareStyles}
