@@ -1,4 +1,4 @@
-This project is part of an introductory Machine Learning course I took in my Bachelor's. It wasn't required, but I put a lot of effort in developing a web application where you could actually interact with a Machine Learning model instead of just visualizing some numbers and graphs. The game is online at <a href="http://on-chess.netlify.com">http://on-chess.netlify.com</a>.
+This project is part of an introductory Machine Learning course I took in my Bachelor's. It wasn't required, but I put a lot of effort in developing a web application where you could actually interact with a Machine Learning model instead of just visualizing some numbers and graphs. The game is online at <a href="https://filipposcaramuzza.dev/online-chess">filipposcaramuzza.dev/online-chess</a>.
 
 I choose to develop this app mainly because I like chess, even if I'm veeery bad at it. You can search for my ELO rating on chess.com, very disappointing.
 
@@ -21,11 +21,11 @@ But there's another guy in the town of chess engines, that also beat Stockfish. 
 
 In this project, I choose an hybrid model, both using minmax and machine learning approaches.
 <h2>The Platform - Technologies Used</h2>
-You can find the platform ready-to-play at <a href="http://on-chess.netlify.com">http://on-chess.netlify.com</a>. Here below, the diagram of the architecture:
+You can find the platform ready-to-play at <a href="https://filipposcaramuzza.dev/online-chess">https://filipposcaramuzza.dev/online-chess</a>. Here below, the diagram of the architecture:
 
 <img class="wp-image-223 aligncenter" src="https://filipposcaramuzza.dev/wp-content/uploads/2023/04/output-onlinepngtools-1024x549.png" alt="" width="514" height="276" />
 <p style="text-align: center;"><em>On-Chess Architecture Diagram</em></p>
-As you can see, I've used a ReactJS application as front-end. This was done mainly because I wanted to experiment more with ReactJS, and in second place because there are a lot of useful packages available with NodeJs, and I used one of those to draw the chess board and implement the game mechanics without re-inventing the wheel. The front-end is hosted on <a href="https://www.netlify.com/">Netflify</a>.
+As you can see, I've used a ReactJS application as front-end. This was done mainly because I wanted to experiment more with ReactJS, and in second place because there are a lot of useful packages available with NodeJs, and I used one of those to draw the chess board and implement the game mechanics without re-inventing the wheel. The front-end is hosted for the moment on my personal website.
 
 On the other hand, as a backend, I used Python, because it's the best when writing machine learning models. Here I designed the ML models and the Matches Manager, which role is to create, assign and delete ongoing matches. The back-end is hosted on <a href="https://render.com/">Render</a> as a Docker container.
 <h2>First Engine Version</h2>
